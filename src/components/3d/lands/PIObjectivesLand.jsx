@@ -1,81 +1,68 @@
 import React from 'react';
-import { CheckpointArch } from '../CheckpointArch';
+import { GiftBoxObjective } from '../GiftBoxObjective';
 import { CircuitNeonDirections } from '../CircuitNeonDirections';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
 
-// Five sequential checkpoints arranged in a clear clockwise racing circuit
+// Five sequential PI objectives arranged along the racing circuit
+// Orientations precisely aligned to open facing directly towards the incoming car & camera!
 // Circuit: Start [-30, -54] ➔ CP1 [-30, -42] ➔ CP2 [-48, -30] ➔ CP3 [-30, -14] ➔ CP4 [-12, -30] ➔ CP5 [-30, -30] (Finish)
-const CHECKPOINTS_DATA = [
+const OBJECTIVES_DATA = [
   {
     index: 1,
     position: [-30, 0, -42],
-    rotation: [0, 0, 0], // Spans East-West across North-South road (car driving South +Z)
-    nextSignAngle: -Math.PI / 4, // Points towards Checkpoint 2 (West-South-West)
+    rotation: [0, 0, 0], // Facing North (approaching car driving South)
     title: 'Wallet Transaction History',
-    desc: 'Having developed and launched our core Wallet, Team Abu is now delivering real-time Transaction History with sub-50ms query speeds, smart categorization, and streaming telemetry.',
-    keyResults: [
-      'Sub-50ms p99 query latency across 10M+ transaction history records',
-      'Real-time streaming event ingestion via Kafka & instant push alerts',
-      'AI-driven automatic transaction categorization (98%+ precision)',
-      '1-Click ISO 20022 compliant statements & audit history exports',
-    ],
+    sentence: 'Developed core wallet and now delivering real-time transaction history with sub-50ms query speeds & instant status tracking.',
+    businessValue: 9,
+    wrapColor: '#0284c7', // Royal Sapphire
+    ribbonColor: '#fbbf24', // Gold
   },
   {
     index: 2,
     position: [-48, 0, -30],
-    rotation: [0, -Math.PI / 4, 0], // Spans perpendicular to NW-SE road
-    nextSignAngle: Math.PI / 4, // Points towards Checkpoint 3 (South-East)
+    rotation: [0, (3 * Math.PI) / 4, 0], // Rotated to face East-North-East directly toward incoming car from CP1!
     title: 'Autonomous AI Agent Pipeline',
-    desc: 'Deploy self-healing coding assistant agents and real-time LLM inference pipelines with smart caching and evaluation benchmarks.',
-    keyResults: [
-      'Automate 60% of regression bug triage and reproduction',
-      'Integrate streaming vector search with sub-100ms retrieval',
-      'Zero hallucinations in policy compliance auditing',
-    ],
+    sentence: 'Deploying self-healing coding assistant agents and real-time LLM inference pipelines for automated regression triage.',
+    businessValue: 8,
+    wrapColor: '#059669', // Emerald Green
+    ribbonColor: '#fde047', // Sunshine Gold
   },
   {
     index: 3,
     position: [-30, 0, -14],
-    rotation: [0, Math.PI / 4, 0], // Spans perpendicular to SW-NE road
-    nextSignAngle: (3 * Math.PI) / 4, // Points towards Checkpoint 4 (East)
+    rotation: [0, (-3 * Math.PI) / 4, 0], // Rotated to face West-South-West directly toward incoming car from CP2!
     title: '60 FPS Interactive 3D Web Platform',
-    desc: 'Deliver a browser-based real-time 3D simulation with dynamic Rapier physics, low memory footprint, and instant initial load.',
-    keyResults: [
-      'Maintain stable 60 FPS across mobile and desktop devices',
-      'Bundle size compressed under 450 KB with tree-shaking',
-      'GPU draw calls reduced by 40% via mesh batching',
-    ],
+    sentence: 'Delivering real-time 3D web simulation with dynamic Rapier physics, low memory footprint, and stable 60 FPS.',
+    businessValue: 9,
+    wrapColor: '#9333ea', // Cyber Violet
+    ribbonColor: '#00f5ff', // Neon Cyan
   },
   {
     index: 4,
     position: [-12, 0, -30],
-    rotation: [0, (3 * Math.PI) / 4, 0], // Spans perpendicular to incoming road from CP3
-    nextSignAngle: Math.PI, // Points straight West into Center Finish Line (CP5)
+    rotation: [0, -Math.PI / 4, 0], // Rotated to face South-West directly toward incoming car from CP3!
     title: 'Micro-Frontend Design System',
-    desc: 'Unify 8 enterprise product dashboards into a tokenized modular design system with WCAG AAA accessibility compliance.',
-    keyResults: [
-      '100% component library coverage with Storybook',
-      'Eliminate duplicate CSS stylesheets across micro-apps',
-      'Accelerate feature release velocity by 3.5x',
-    ],
+    sentence: 'Unifying 8 enterprise product dashboards into an accessible tokenized modular design system with WCAG AAA compliance.',
+    businessValue: 7,
+    wrapColor: '#ea580c', // Sunset Orange
+    ribbonColor: '#ffffff', // Crisp White
   },
   {
     index: 5,
     position: [-30, 0, -30],
-    rotation: [0, -Math.PI / 2, 0], // Center Finish Arch facing East (incoming car from CP4)
-    nextSignAngle: 0,
+    rotation: [0, Math.PI / 2, 0], // Rotated to face East straight at incoming car from CP4!
     title: 'Zero-Downtime Deployment & Observability',
-    desc: 'Implement progressive canary releases with automated rollback triggers based on Prometheus telemetry and OpenTelemetry tracing.',
-    keyResults: [
-      'Deploy 25+ times per day with zero downtime',
-      'Mean time to recovery (MTTR) dropped to under 3 minutes',
-      'Full distributed tracing across 120+ microservices',
-    ],
+    sentence: 'Implementing progressive canary releases with automated Prometheus telemetry rollback triggers and zero downtime.',
+    businessValue: 10,
+    wrapColor: '#d97706', // Championship Gold
+    ribbonColor: '#dc2626', // Royal Ruby
   },
 ];
 
 export function PIObjectivesLand() {
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
+  const activeObjectiveIndex = usePortfolioStore((s) => s.activeObjectiveIndex);
+
   return (
     <group position={[0, 0, 0]}>
       {/* Land Zone Base - Crisp Light Circuit Arena */}
@@ -117,9 +104,8 @@ export function PIObjectivesLand() {
         <meshStandardMaterial color="#e2e8f0" roughness={0.6} />
       </mesh>
 
-      {/* START LINE GANTRY & ROAD MARKINGS (Upright for approaching driver) */}
+      {/* START LINE GANTRY & ROAD MARKINGS */}
       <group position={[-30, 0.02, -56]}>
-        {/* Checkered Start Stripe */}
         <mesh rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[6.5, 1.4]} />
           <meshBasicMaterial color="#ffffff" />
@@ -129,20 +115,27 @@ export function PIObjectivesLand() {
       {/* DYNAMIC NEON LIGHTING ARROWS FOR EVERY OBJECTIVE & ROUTE */}
       <CircuitNeonDirections />
 
+      {/* ========================================================
+          3D WRAPPED GIFT BOX OBJECTIVES ALONG THE TRACK
+          Each opens facing directly towards the incoming car camera!
+         ======================================================== */}
+      {OBJECTIVES_DATA.map((obj) => {
+        // Strictly show only the active target checkpoint or currently active opened objective
+        if (obj.index !== targetCheckpointIndex && obj.index !== activeObjectiveIndex) {
+          return null;
+        }
 
-      {/* Sequence of Checkpoint Arches - Strictly render ONLY the active target checkpoint */}
-      {CHECKPOINTS_DATA.map((cp) => {
-        if (cp.index !== targetCheckpointIndex) return null;
         return (
-          <CheckpointArch
-            key={cp.index}
-            index={cp.index}
-            position={cp.position}
-            rotation={cp.rotation}
-            nextSignAngle={cp.nextSignAngle}
-            title={cp.title}
-            desc={cp.desc}
-            keyResults={cp.keyResults}
+          <GiftBoxObjective
+            key={obj.index}
+            index={obj.index}
+            position={obj.position}
+            rotation={obj.rotation}
+            title={obj.title}
+            sentence={obj.sentence}
+            businessValue={obj.businessValue}
+            wrapColor={obj.wrapColor}
+            ribbonColor={obj.ribbonColor}
           />
         );
       })}

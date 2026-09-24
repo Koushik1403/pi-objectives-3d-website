@@ -13,7 +13,9 @@ const state = {
   
   // Checkpoint modal data & Waypoint navigation
   activeCheckpoint: null, // { index: 1-5, title: '', desc: '', keyResults: [] }
+  activeObjectiveIndex: null, // Index of currently opened 3D objective block (1-5), null when driving
   targetCheckpointIndex: 1, // Target checkpoint for navigation directions (1 to 5, 6=completed)
+  openedObjectives: [], // Indices of opened gift box objectives in 3D land
   objectivesCompleted: false,
   
   // Business value commitment status
@@ -137,10 +139,41 @@ export const portfolioActions = {
       });
     }
   },
+  openObjectiveBlock: (index) => {
+    const currentOpened = state.openedObjectives || [];
+    const nextOpened = currentOpened.includes(index) ? currentOpened : [...currentOpened, index];
+
+    setPortfolioState({
+      activeObjectiveIndex: index,
+      openedObjectives: nextOpened,
+      currentLand: 'PI Objectives Land',
+    });
+  },
+  advanceToNextObjective: (nextIdx) => {
+    const alignment = CHECKPOINT_ALIGNMENTS[nextIdx];
+    if (nextIdx > 5) {
+      if (state.audioEnabled) sounds.celebration();
+      setPortfolioState({
+        activeObjectiveIndex: null,
+        targetCheckpointIndex: 6,
+        objectivesCompleted: true,
+        currentLand: 'Our Team Land',
+        teleportTarget: alignment || { x: -22.0, y: 0.8, z: -30.0, heading: -Math.PI / 2, name: 'Our Team Land' },
+        isTeleporting: true,
+      });
+    } else {
+      if (state.audioEnabled) sounds.click();
+      setPortfolioState({
+        activeObjectiveIndex: null,
+        targetCheckpointIndex: nextIdx,
+        teleportTarget: alignment,
+        isTeleporting: true,
+      });
+    }
+  },
   openCheckpoint: (cpData) => {
     // Keep activeCheckpoint while user is viewing it, without prematurely skipping
     setPortfolioState({
-      activeModal: 'checkpoint',
       activeCheckpoint: cpData,
       targetCheckpointIndex: cpData.index,
       currentLand: 'PI Objectives Land',

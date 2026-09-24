@@ -9,6 +9,7 @@ export function HUD() {
   const carSpeed = usePortfolioStore((s) => s.carSpeed);
   const audioEnabled = usePortfolioStore((s) => s.audioEnabled);
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
+  const activeObjectiveIndex = usePortfolioStore((s) => s.activeObjectiveIndex);
   const objectivesCompleted = usePortfolioStore((s) => s.objectivesCompleted);
 
   const handleMapToggle = () => {
@@ -171,6 +172,51 @@ export function HUD() {
           </div>
         </div>
       </div>
+      {/* Bottom Center: Interactive Auto-Drive to Next Objective Button */}
+      {activeObjectiveIndex && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '34px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 60,
+            pointerEvents: 'auto',
+          }}
+        >
+          <button
+            onClick={() => {
+              const nextIdx = activeObjectiveIndex < 5 ? activeObjectiveIndex + 1 : 6;
+              portfolioActions.advanceToNextObjective(nextIdx);
+            }}
+            style={{
+              padding: '14px 28px',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              color: '#ffffff',
+              border: '2px solid #fbbf24',
+              boxShadow: '0 8px 30px rgba(2, 132, 199, 0.45), 0 0 16px rgba(251, 191, 36, 0.4)',
+              fontWeight: 900,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              letterSpacing: '0.04em',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+            onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            <span style={{ fontSize: '1.2rem' }}>🏎️</span>
+            <span>
+              {activeObjectiveIndex < 5
+                ? `DRIVE TO OBJECTIVE ${activeObjectiveIndex + 1} ➔`
+                : '🏆 ALL OBJECTIVES UNLOCKED! GO TO TEAM LAND ➔'}
+            </span>
+          </button>
+        </div>
+      )}
     </>
   );
 }
