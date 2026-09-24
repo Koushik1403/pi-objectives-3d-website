@@ -95,43 +95,16 @@ const PREV_CHECKPOINT_ALIGNMENTS = {
 };
 
 // Straight-on presentation viewing alignments (centered directly in front of each 3D board):
-// Positions car neatly parked in front of the board and zooms camera directly in front of the board face!
+// Positions car and camera squarely perpendicular to the board face with elevated lookAt!
 export const OBJECTIVE_VIEW_ALIGNMENTS = {
   // Objective 1 [-30, 0, -42], rotY: 0 (board faces South +Z)
-  1: {
-    x: -30.0,
-    y: 0.8,
-    z: -37.2,
-    heading: 0,
-    lookAtY: 3.65,
-    lookAt: { x: -30.0, y: 3.65, z: -42.0 },
-    camPos: { x: -30.0, y: 3.65, z: -33.8 },
-    name: 'PI Objective 1 View',
-  },
+  1: { x: -30.0, y: 0.8, z: -33.5, heading: 0, lookAtY: 2.8, name: 'PI Objective 1 View' },
 
   // Objective 2 [-48, 0, -30], rotY: 3pi/4 (board faces East-North-East)
-  2: {
-    x: -44.60,
-    y: 0.8,
-    z: -33.40,
-    heading: (3 * Math.PI) / 4,
-    lookAtY: 3.65,
-    lookAt: { x: -48.0, y: 3.65, z: -30.0 },
-    camPos: { x: -42.20, y: 3.65, z: -35.80 },
-    name: 'PI Objective 2 View',
-  },
+  2: { x: -41.99, y: 0.8, z: -36.01, heading: (3 * Math.PI) / 4, lookAtY: 2.8, name: 'PI Objective 2 View' },
 
   // Objective 3 [-30, 0, -14], rotY: -3pi/4 (board faces West-South-West)
-  3: {
-    x: -33.40,
-    y: 0.8,
-    z: -17.40,
-    heading: (-3 * Math.PI) / 4,
-    lookAtY: 3.65,
-    lookAt: { x: -30.0, y: 3.65, z: -14.0 },
-    camPos: { x: -35.80, y: 3.65, z: -19.80 },
-    name: 'PI Objective 3 View',
-  },
+  3: { x: -36.01, y: 0.8, z: -20.01, heading: (-3 * Math.PI) / 4, lookAtY: 2.8, name: 'PI Objective 3 View' },
 };
 
 export const portfolioActions = {
@@ -230,16 +203,7 @@ export const portfolioActions = {
       targetCheckpointIndex: 4,
       objectivesCompleted: true,
       currentLand: 'Our Team Land',
-      teleportTarget: {
-        x: 32.0,
-        y: 0.8,
-        z: -24.0,
-        heading: 0,
-        lookAtY: 4.6,
-        lookAt: { x: 32.0, y: 4.6, z: -30.0 },
-        camPos: { x: 32.0, y: 4.6, z: -18.2 },
-        name: 'Team Photo View',
-      },
+      teleportTarget: { x: 32.0, y: 0.8, z: -20.0, heading: 0, lookAtY: 4.6, name: 'Team Photo View' },
       isTeleporting: true,
     });
   },

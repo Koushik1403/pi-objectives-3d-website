@@ -48,14 +48,6 @@ export function Car() {
       // Don't capture inputs if user is typing in any input field
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-      const st = getPortfolioState();
-      // If viewing an objective board and pressing forward/space, smoothly advance & zoom out
-      if (st.activeObjectiveIndex && (e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'Space')) {
-        const nextIdx = st.activeObjectiveIndex < 3 ? st.activeObjectiveIndex + 1 : 4;
-        portfolioActions.advanceToNextObjective(nextIdx);
-        return;
-      }
-
       switch (e.code) {
         case 'KeyW':
         case 'ArrowUp':
@@ -221,14 +213,6 @@ export function Car() {
   // Per-frame physics update & wheel animation
   useFrame((_, delta) => {
     if (!rigidBodyRef.current || isTeleportingAnim.current) return;
-
-    const { activeObjectiveIndex } = getPortfolioState();
-    // When viewing an objective board, park car solidly in place
-    if (activeObjectiveIndex) {
-      rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
-      rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
-      return;
-    }
 
     const rb = rigidBodyRef.current;
     const translation = rb.translation();

@@ -10,7 +10,7 @@ import { sounds } from '../../../audio/soundEffects';
 // 📸 TEAM GROUP PHOTO CONFIGURATION
 // Place your real group photo file at: public/team-photo.png (or .svg / .jpg)
 // ========================================================
-export const TEAM_PHOTO_URL = '/team-photo.svg';
+export const TEAM_PHOTO_URL = '/team-photo.jpeg';
 
 // Placed on the East / Right side: Perfectly SIDE BY SIDE with PI Objectives Land [-30, 0, -30]
 const LAND_CENTER = [32, 0, -30];

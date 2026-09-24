@@ -2,16 +2,16 @@ import { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { getPortfolioState, OBJECTIVE_VIEW_ALIGNMENTS } from '../../store/usePortfolioStore';
+import { getPortfolioState } from '../../store/usePortfolioStore';
 
 export function CameraController() {
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
   const isTransitioning = useRef(false);
   const currentLookAt = useRef(new THREE.Vector3(0, 1.2, 0));
 
   // Dynamic distance with zoom support
-  const distanceTarget = useRef(11.5);
-  const distanceCurrent = useRef(11.5);
+  const distanceTarget = useRef(12.0);
+  const distanceCurrent = useRef(12.0);
   const baseHeight = 5.6;
 
   // Mouse drag orbit controls (High rotation degree, swift & responsive)
@@ -72,12 +72,12 @@ export function CameraController() {
     const handleWheel = (e) => {
       // Zoom in / out smoothly
       distanceTarget.current = Math.max(
-        5.0,
+        7.5,
         Math.min(22.0, distanceTarget.current + e.deltaY * 0.01)
       );
     };
 
-    // Double click to reset camera back directly behind target
+    // Double click to reset camera back directly behind the car
     const handleDblClick = () => {
       orbitAngleTarget.current = 0;
       pitchTarget.current = 0;
@@ -114,51 +114,36 @@ export function CameraController() {
   const animateTeleportCamera = (target) => {
     isTransitioning.current = true;
 
-    // Reset orbit angles on teleport so camera lines up squarely
+    // Reset orbit angles on teleport so camera lines up right behind destination
     orbitAngleTarget.current = 0;
     orbitAngle.current = 0;
     pitchTarget.current = 0;
     pitch.current = 0;
 
     const startPos = camera.position.clone();
-    const isZoomToBoard = Boolean(target.camPos && target.lookAt);
+    const travelDist = Math.hypot(target.x - startPos.x, target.z - startPos.z);
+    const isShortAlign = travelDist < 16;
 
-    let endPos;
-    let targetLookAt;
+    const heading = target.heading !== undefined ? target.heading : 0;
+    const dist = distanceCurrent.current || 10.5;
+    const endPos = new THREE.Vector3(
+      target.x + Math.sin(heading) * dist,
+      target.y ? target.y + baseHeight : baseHeight,
+      target.z + Math.cos(heading) * dist
+    );
 
-    if (isZoomToBoard) {
-      endPos = new THREE.Vector3(target.camPos.x, target.camPos.y, target.camPos.z);
-      targetLookAt = new THREE.Vector3(target.lookAt.x, target.lookAt.y, target.lookAt.z);
-      distanceTarget.current = Math.hypot(endPos.x - targetLookAt.x, endPos.z - targetLookAt.z);
-      distanceCurrent.current = distanceTarget.current;
-    } else {
-      const heading = target.heading !== undefined ? target.heading : 0;
-      const dist = target.camDist || 11.5;
-      const h = target.camHeight || baseHeight;
-      endPos = new THREE.Vector3(
-        target.x + Math.sin(heading) * dist,
-        target.y ? target.y + h : h,
-        target.z + Math.cos(heading) * dist
-      );
-      targetLookAt = new THREE.Vector3(
-        target.x,
-        target.lookAtY !== undefined ? target.lookAtY : 1.35,
-        target.z
-      );
-      distanceTarget.current = 11.5;
-      distanceCurrent.current = 11.5;
-    }
-
-    const travelDist = Math.hypot(endPos.x - startPos.x, endPos.z - startPos.z);
-    const isShortSwoop = travelDist < 25;
-
-    // Direct, cinematic trajectory
     const midPoint = new THREE.Vector3(
-      (startPos.x + endPos.x) / 2,
-      isZoomToBoard
-        ? THREE.MathUtils.lerp(startPos.y, endPos.y, 0.5) + 0.3
-        : (isShortSwoop ? Math.max(startPos.y, endPos.y) + 1.2 : Math.max(startPos.y, 28)),
-      (startPos.z + endPos.z) / 2
+      (startPos.x + target.x) / 2,
+      isShortAlign
+        ? Math.max(startPos.y, endPos.y) + 1.2
+        : Math.max(startPos.y, 28),
+      (startPos.z + target.z) / 2
+    );
+
+    const targetLookAt = new THREE.Vector3(
+      target.x,
+      target.lookAtY !== undefined ? target.lookAtY : 1.2,
+      target.z
     );
 
     const animProxy = {
@@ -168,14 +153,14 @@ export function CameraController() {
       lookAtZ: currentLookAt.current.z,
     };
 
-    // Fast, responsive zoom in to board (0.85s) or smooth zoom out to driving track (1.0s)
+    // Quadratic bezier curve interpolation for smooth high-altitude swoop or snappy local alignment
     gsap.to(animProxy, {
       progress: 1,
       lookAtX: targetLookAt.x,
       lookAtY: targetLookAt.y,
       lookAtZ: targetLookAt.z,
-      duration: isZoomToBoard ? 0.85 : (isShortSwoop ? 1.0 : 1.4),
-      ease: isZoomToBoard ? 'power2.out' : (isShortSwoop ? 'power2.inOut' : 'power3.inOut'),
+      duration: isShortAlign ? 0.8 : 1.4,
+      ease: isShortAlign ? 'power2.out' : 'power3.inOut',
       onUpdate: () => {
         const t = animProxy.progress;
         // Bezier formula: (1-t)^2 * P0 + 2(1-t)t * P1 + t^2 * P2
@@ -189,106 +174,33 @@ export function CameraController() {
       },
       onComplete: () => {
         isTransitioning.current = false;
-        camera.position.copy(endPos);
-        currentLookAt.current.copy(targetLookAt);
-        camera.lookAt(currentLookAt.current);
       },
     });
   };
 
   useFrame((_, delta) => {
-    // If in mid-flight GSAP animation, do not override
+    // If in mid-flight teleport animation, GSAP controls camera
     if (isTransitioning.current) return;
 
-    const state = getPortfolioState();
-    const activeIdx = state.activeObjectiveIndex;
-
-    // 1. Zoomed-In Board Mode: Hold camera squarely focused on the active objective board
-    if (activeIdx && OBJECTIVE_VIEW_ALIGNMENTS[activeIdx]) {
-      const boardAlign = OBJECTIVE_VIEW_ALIGNMENTS[activeIdx];
-      const bx = boardAlign.lookAt.x;
-      const by = boardAlign.lookAt.y;
-      const bz = boardAlign.lookAt.z;
-
-      const orbitDamp = THREE.MathUtils.clamp(delta * 6.0, 0, 1);
-      orbitAngle.current = THREE.MathUtils.lerp(orbitAngle.current, orbitAngleTarget.current, orbitDamp);
-      pitch.current = THREE.MathUtils.lerp(pitch.current, pitchTarget.current, orbitDamp);
-
-      distanceCurrent.current = THREE.MathUtils.lerp(
-        distanceCurrent.current,
-        distanceTarget.current,
-        THREE.MathUtils.clamp(delta * 5.0, 0, 1)
-      );
-
-      const zoomDist = distanceCurrent.current || 8.2;
-      const baseHeading = boardAlign.heading !== undefined ? boardAlign.heading : 0;
-      const totalAzimuth = baseHeading + orbitAngle.current;
-
-      const effDist = zoomDist * Math.cos(pitch.current);
-      const effHeight = by + zoomDist * Math.sin(pitch.current);
-
-      const targetCamX = bx + Math.sin(totalAzimuth) * effDist;
-      const targetCamY = Math.max(1.6, effHeight);
-      const targetCamZ = bz + Math.cos(totalAzimuth) * effDist;
-
-      const lerpSpeed = THREE.MathUtils.clamp(delta * 6.0, 0, 1);
-      camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, lerpSpeed);
-      camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, lerpSpeed);
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, lerpSpeed);
-
-      currentLookAt.current.lerp(new THREE.Vector3(bx, by, bz), lerpSpeed * 1.5);
-      camera.lookAt(currentLookAt.current);
-      return;
-    }
-
-    // 2. Team Photo View Mode (Grand Finale in Our Team Land)
-    if (state.teamPhotoOpened && !activeIdx) {
-      const bx = 32.0;
-      const by = 4.6;
-      const bz = -30.0;
-
-      const orbitDamp = THREE.MathUtils.clamp(delta * 6.0, 0, 1);
-      orbitAngle.current = THREE.MathUtils.lerp(orbitAngle.current, orbitAngleTarget.current, orbitDamp);
-      pitch.current = THREE.MathUtils.lerp(pitch.current, pitchTarget.current, orbitDamp);
-
-      const zoomDist = distanceCurrent.current || 11.8;
-      const effDist = zoomDist * Math.cos(pitch.current);
-      const effHeight = by + zoomDist * Math.sin(pitch.current);
-
-      const targetCamX = bx + Math.sin(orbitAngle.current) * effDist;
-      const targetCamY = Math.max(1.8, effHeight);
-      const targetCamZ = bz + Math.cos(orbitAngle.current) * effDist;
-
-      const lerpSpeed = THREE.MathUtils.clamp(delta * 6.0, 0, 1);
-      camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, lerpSpeed);
-      camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, lerpSpeed);
-      camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, lerpSpeed);
-
-      currentLookAt.current.lerp(new THREE.Vector3(bx, by, bz), lerpSpeed * 1.5);
-      camera.lookAt(currentLookAt.current);
-      return;
-    }
-
-    // 3. Normal Driving Mode: Follow car smoothly from behind at driving height & distance
-    const { carPosition, carRotation } = state;
+    const { carPosition, carRotation, carSpeed } = getPortfolioState();
     if (!carPosition) return;
 
-    // Ensure driving distance target is set
-    if (distanceTarget.current < 9.5) {
-      distanceTarget.current = 11.5;
-    }
-
+    // Smoothly interpolate dynamic camera zoom distance
     distanceCurrent.current = THREE.MathUtils.lerp(
       distanceCurrent.current,
       distanceTarget.current,
       THREE.MathUtils.clamp(delta * 5.0, 0, 1)
     );
 
+    // Smoothly interpolate mouse orbit angle and pitch
     const orbitDamp = THREE.MathUtils.clamp(delta * 6.0, 0, 1);
     orbitAngle.current = THREE.MathUtils.lerp(orbitAngle.current, orbitAngleTarget.current, orbitDamp);
     pitch.current = THREE.MathUtils.lerp(pitch.current, pitchTarget.current, orbitDamp);
 
+    // Combine car heading with mouse orbit offset
     const totalAzimuth = carRotation + orbitAngle.current;
+
+    // Calculate effective spherical offset
     const effDistance = distanceCurrent.current * Math.cos(pitch.current);
     const effHeight = baseHeight + distanceCurrent.current * Math.sin(pitch.current);
 
@@ -296,12 +208,16 @@ export function CameraController() {
     const targetCamY = carPosition.y + Math.max(2.4, effHeight);
     const targetCamZ = carPosition.z + Math.cos(totalAzimuth) * effDistance;
 
+    // Smoothly interpolate camera position
     const lerpSpeed = THREE.MathUtils.clamp(delta * 4.8, 0, 1);
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, lerpSpeed);
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, lerpSpeed);
     camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, lerpSpeed);
 
-    const targetLookAt = new THREE.Vector3(carPosition.x, carPosition.y + 1.35, carPosition.z);
+    // Smoothly interpolate lookAt target - when objective is open, look higher directly at the board center
+    const state = getPortfolioState();
+    const targetLookAtY = state.activeObjectiveIndex ? carPosition.y + 2.4 : carPosition.y + 1.35;
+    const targetLookAt = new THREE.Vector3(carPosition.x, targetLookAtY, carPosition.z);
     currentLookAt.current.lerp(targetLookAt, lerpSpeed * 1.5);
     camera.lookAt(currentLookAt.current);
   });
