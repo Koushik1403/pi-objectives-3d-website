@@ -1,112 +1,123 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'>
   <defs>
     <linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'>
-      <stop offset='0%' stop-color='#0f172a'/>
-      <stop offset='50%' stop-color='#1e293b'/>
-      <stop offset='100%' stop-color='#090d16'/>
+      <stop offset='0%' stop-color='#ffffff'/>
+      <stop offset='60%' stop-color='#f0f9ff'/>
+      <stop offset='100%' stop-color='#e0f2fe'/>
     </linearGradient>
     <linearGradient id='accent' x1='0%' y1='0%' x2='100%' y2='0%'>
       <stop offset='0%' stop-color='#0284c7'/>
-      <stop offset='50%' stop-color='#38bdf8'/>
-      <stop offset='100%' stop-color='#0ea5e9'/>
+      <stop offset='50%' stop-color='#0ea5e9'/>
+      <stop offset='100%' stop-color='#38bdf8'/>
     </linearGradient>
     <linearGradient id='gold' x1='0%' y1='0%' x2='100%' y2='0%'>
-      <stop offset='0%' stop-color='#f59e0b'/>
-      <stop offset='100%' stop-color='#fbbf24'/>
+      <stop offset='0%' stop-color='#d97706'/>
+      <stop offset='100%' stop-color='#f59e0b'/>
     </linearGradient>
-    <filter id='glow' x='-20%' y='-20%' width='140%' height='140%'>
-      <feGaussianBlur stdDeviation='10' result='blur'/>
-      <feComposite in='SourceGraphic' in2='blur' operator='over'/>
+    <filter id='shadow' x='-10%' y='-10%' width='120%' height='120%'>
+      <feDropShadow dx='0' dy='8' stdDeviation='12' flood-color='#0284c7' flood-opacity='0.12'/>
     </filter>
   </defs>
 
-  <!-- Background -->
+  <!-- Clean Bright Studio Background -->
   <rect width='1600' height='900' fill='url(#bg)'/>
   
-  <!-- Subtle Grid Pattern -->
-  <g opacity='0.08' stroke='#ffffff' stroke-width='1'>
-    <line x1='0' y1='0' x2='0' y2='900'/><line x1='80' y1='0' x2='80' y2='900'/><line x1='160' y1='0' x2='160' y2='900'/><line x1='240' y1='0' x2='240' y2='900'/><line x1='320' y1='0' x2='320' y2='900'/><line x1='400' y1='0' x2='400' y2='900'/><line x1='480' y1='0' x2='480' y2='900'/><line x1='560' y1='0' x2='560' y2='900'/><line x1='640' y1='0' x2='640' y2='900'/><line x1='720' y1='0' x2='720' y2='900'/><line x1='800' y1='0' x2='800' y2='900'/><line x1='880' y1='0' x2='880' y2='900'/><line x1='960' y1='0' x2='960' y2='900'/><line x1='1040' y1='0' x2='1040' y2='900'/><line x1='1120' y1='0' x2='1120' y2='900'/><line x1='1200' y1='0' x2='1200' y2='900'/><line x1='1280' y1='0' x2='1280' y2='900'/><line x1='1360' y1='0' x2='1360' y2='900'/><line x1='1440' y1='0' x2='1440' y2='900'/><line x1='1520' y1='0' x2='1520' y2='900'/>
-    <line x1='0' y1='0' x2='1600' y2='0'/><line x1='0' y1='80' x2='1600' y2='80'/><line x1='0' y1='160' x2='1600' y2='160'/><line x1='0' y1='240' x2='1600' y2='240'/><line x1='0' y1='320' x2='1600' y2='320'/><line x1='0' y1='400' x2='1600' y2='400'/><line x1='0' y1='480' x2='1600' y2='480'/><line x1='0' y1='560' x2='1600' y2='560'/><line x1='0' y1='640' x2='1600' y2='640'/><line x1='0' y1='720' x2='1600' y2='720'/><line x1='0' y1='800' x2='1600' y2='800'/><line x1='0' y1='880' x2='1600' y2='880'/>
+  <!-- Subtle Modern Studio Grid Overlay -->
+  <g opacity='0.25' stroke='#bae6fd' stroke-width='1'>
+    <line x1='0' y1='0' x2='0' y2='900'/><line x1='100' y1='0' x2='100' y2='900'/><line x1='200' y1='0' x2='200' y2='900'/><line x1='300' y1='0' x2='300' y2='900'/><line x1='400' y1='0' x2='400' y2='900'/><line x1='500' y1='0' x2='500' y2='900'/><line x1='600' y1='0' x2='600' y2='900'/><line x1='700' y1='0' x2='700' y2='900'/><line x1='800' y1='0' x2='800' y2='900'/><line x1='900' y1='0' x2='900' y2='900'/><line x1='1000' y1='0' x2='1000' y2='900'/><line x1='1100' y1='0' x2='1100' y2='900'/><line x1='1200' y1='0' x2='1200' y2='900'/><line x1='1300' y1='0' x2='1300' y2='900'/><line x1='1400' y1='0' x2='1400' y2='900'/><line x1='1500' y1='0' x2='1500' y2='900'/>
+    <line x1='0' y1='0' x2='1600' y2='0'/><line x1='0' y1='100' x2='1600' y2='100'/><line x1='0' y1='200' x2='1600' y2='200'/><line x1='0' y1='300' x2='1600' y2='300'/><line x1='0' y1='400' x2='1600' y2='400'/><line x1='0' y1='500' x2='1600' y2='500'/><line x1='0' y1='600' x2='1600' y2='600'/><line x1='0' y1='700' x2='1600' y2='700'/><line x1='0' y1='800' x2='1600' y2='800'/>
   </g>
 
-  <!-- Top Banner -->
+  <!-- Top Decorative Accent Bar -->
   <rect x='0' y='0' width='1600' height='12' fill='url(#accent)'/>
 
-  <!-- Header Badge -->
+  <!-- Top Pill Badge -->
   <g transform='translate(800, 110)'>
-    <rect x='-220' y='-30' width='440' height='60' rx='30' fill='#1e293b' stroke='#0284c7' stroke-width='2' opacity='0.9'/>
-    <text x='0' y='10' font-family='system-ui, -apple-system, sans-serif' font-size='22' font-weight='800' fill='#38bdf8' text-anchor='middle' letter-spacing='4'>TEAM ABU • Q4 2026</text>
+    <rect x='-200' y='-28' width='400' height='56' rx='28' fill='#ffffff' stroke='#0284c7' stroke-width='2' filter='url(#shadow)'/>
+    <text x='0' y='9' font-family='system-ui, -apple-system, sans-serif' font-size='20' font-weight='800' fill='#0284c7' text-anchor='middle' letter-spacing='4'>TEAM ABU • Q4 2026</text>
   </g>
 
-  <!-- Main Headline -->
-  <text x='800' y='210' font-family='system-ui, -apple-system, sans-serif' font-size='52' font-weight='900' fill='#ffffff' text-anchor='middle' letter-spacing='2'>AGILE PI PLANNING SQUAD</text>
-  <text x='800' y='255' font-family='system-ui, -apple-system, sans-serif' font-size='20' font-weight='600' fill='#94a3b8' text-anchor='middle' letter-spacing='1'>Official Team Presentation Group Showcase</text>
+  <!-- Main Showcase Headlines -->
+  <text x='800' y='210' font-family='system-ui, -apple-system, sans-serif' font-size='50' font-weight='900' fill='#0f172a' text-anchor='middle' letter-spacing='1'>AGILE PI PLANNING CREW</text>
+  <text x='800' y='255' font-family='system-ui, -apple-system, sans-serif' font-size='20' font-weight='700' fill='#0284c7' text-anchor='middle' letter-spacing='1'>Official Engineering &amp; Product Squad</text>
 
-  <!-- Group Silhouettes / Avatars (6 Team Members) -->
+  <!-- Group Showcase Cards (6 Team Members in Bright Modern Cards) -->
   <g transform='translate(800, 520)'>
-    <!-- Stage Floor Ellipse -->
-    <ellipse cx='0' cy='180' rx='620' ry='45' fill='#0284c7' opacity='0.25' filter='url(#glow)'/>
+    <!-- Stage Ambient Glow -->
+    <ellipse cx='0' cy='180' rx='660' ry='48' fill='#38bdf8' opacity='0.2'/>
     
-    <!-- Member 1: Lead Architect (Left 1) -->
-    <g transform='translate(-420, 20)'>
-      <circle cx='0' cy='-70' r='52' fill='#0284c7' opacity='0.9'/>
-      <path d='M -65 80 C -65 -15 65 -15 65 80 Z' fill='#1e293b' stroke='#0284c7' stroke-width='3'/>
-      <text x='0' y='-60' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>AR</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='20' font-weight='800' fill='#ffffff' text-anchor='middle'>Alex Rivera</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='15' font-weight='600' fill='#38bdf8' text-anchor='middle'>Cloud Architect</text>
+    <!-- Member 1: Cloud Architect -->
+    <g transform='translate(-420, 0)' filter='url(#shadow)'>
+      <rect x='-75' y='-150' width='150' height='270' rx='20' fill='#ffffff' stroke='#e2e8f0' stroke-width='2'/>
+      <circle cx='0' cy='-70' r='46' fill='#0284c7'/>
+      <text x='0' y='-60' font-family='sans-serif' font-size='28' font-weight='900' fill='#ffffff' text-anchor='middle'>AR</text>
+      <text x='0' y='30' font-family='sans-serif' font-size='18' font-weight='800' fill='#0f172a' text-anchor='middle'>Alex Rivera</text>
+      <text x='0' y='55' font-family='sans-serif' font-size='14' font-weight='700' fill='#0284c7' text-anchor='middle'>Cloud Architect</text>
+      <rect x='-50' y='75' width='100' height='22' rx='11' fill='#f0f9ff'/>
+      <text x='0' y='90' font-family='sans-serif' font-size='11' font-weight='700' fill='#0284c7' text-anchor='middle'>Infrastructure</text>
     </g>
 
-    <!-- Member 2: AI Lead (Left 2) -->
-    <g transform='translate(-250, -20)'>
-      <circle cx='0' cy='-70' r='52' fill='#10b981' opacity='0.9'/>
-      <path d='M -65 80 C -65 -15 65 -15 65 80 Z' fill='#1e293b' stroke='#10b981' stroke-width='3'/>
-      <text x='0' y='-60' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>MT</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='20' font-weight='800' fill='#ffffff' text-anchor='middle'>Marcus Thorne</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='15' font-weight='600' fill='#34d399' text-anchor='middle'>AI Agent Lead</text>
+    <!-- Member 2: AI Lead -->
+    <g transform='translate(-250, -30)' filter='url(#shadow)'>
+      <rect x='-75' y='-150' width='150' height='270' rx='20' fill='#ffffff' stroke='#10b981' stroke-width='2'/>
+      <circle cx='0' cy='-70' r='46' fill='#10b981'/>
+      <text x='0' y='-60' font-family='sans-serif' font-size='28' font-weight='900' fill='#ffffff' text-anchor='middle'>MT</text>
+      <text x='0' y='30' font-family='sans-serif' font-size='18' font-weight='800' fill='#0f172a' text-anchor='middle'>Marcus Thorne</text>
+      <text x='0' y='55' font-family='sans-serif' font-size='14' font-weight='700' fill='#059669' text-anchor='middle'>AI Agent Lead</text>
+      <rect x='-50' y='75' width='100' height='22' rx='11' fill='#ecfdf5'/>
+      <text x='0' y='90' font-family='sans-serif' font-size='11' font-weight='700' fill='#059669' text-anchor='middle'>LLM Systems</text>
     </g>
 
-    <!-- Member 3: Engineering Manager (Center Left) -->
-    <g transform='translate(-85, -50)'>
-      <circle cx='0' cy='-78' r='58' fill='#f59e0b' opacity='0.95'/>
-      <path d='M -72 80 C -72 -20 72 -20 72 80 Z' fill='#1e293b' stroke='#f59e0b' stroke-width='4'/>
-      <text x='0' y='-68' font-family='sans-serif' font-size='36' font-weight='900' fill='#ffffff' text-anchor='middle'>AB</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='22' font-weight='900' fill='#ffffff' text-anchor='middle'>Abu Bakr</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='16' font-weight='700' fill='#fbbf24' text-anchor='middle'>Team Abu Lead</text>
+    <!-- Member 3: Abu Bakr (Team Lead) -->
+    <g transform='translate(-85, -60)' filter='url(#shadow)'>
+      <rect x='-80' y='-160' width='160' height='290' rx='22' fill='#ffffff' stroke='#f59e0b' stroke-width='3'/>
+      <circle cx='0' cy='-75' r='52' fill='#f59e0b'/>
+      <text x='0' y='-64' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>AB</text>
+      <text x='0' y='32' font-family='sans-serif' font-size='20' font-weight='900' fill='#0f172a' text-anchor='middle'>Abu Bakr</text>
+      <text x='0' y='58' font-family='sans-serif' font-size='14' font-weight='800' fill='#d97706' text-anchor='middle'>Team Abu Lead</text>
+      <rect x='-55' y='78' width='110' height='24' rx='12' fill='#fffbeb'/>
+      <text x='0' y='94' font-family='sans-serif' font-size='12' font-weight='800' fill='#d97706' text-anchor='middle'>⭐ Engineering</text>
     </g>
 
-    <!-- Member 4: Product Owner (Center Right) -->
-    <g transform='translate(85, -50)'>
-      <circle cx='0' cy='-78' r='58' fill='#ec4899' opacity='0.95'/>
-      <path d='M -72 80 C -72 -20 72 -20 72 80 Z' fill='#1e293b' stroke='#ec4899' stroke-width='4'/>
-      <text x='0' y='-68' font-family='sans-serif' font-size='36' font-weight='900' fill='#ffffff' text-anchor='middle'>SP</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='22' font-weight='900' fill='#ffffff' text-anchor='middle'>Sarah Patel</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='16' font-weight='700' fill='#f472b6' text-anchor='middle'>Product Owner</text>
+    <!-- Member 4: Product Owner -->
+    <g transform='translate(85, -60)' filter='url(#shadow)'>
+      <rect x='-80' y='-160' width='160' height='290' rx='22' fill='#ffffff' stroke='#0284c7' stroke-width='3'/>
+      <circle cx='0' cy='-75' r='52' fill='#0284c7'/>
+      <text x='0' y='-64' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>SP</text>
+      <text x='0' y='32' font-family='sans-serif' font-size='20' font-weight='900' fill='#0f172a' text-anchor='middle'>Sarah Patel</text>
+      <text x='0' y='58' font-family='sans-serif' font-size='14' font-weight='800' fill='#0284c7' text-anchor='middle'>Product Owner</text>
+      <rect x='-55' y='78' width='110' height='24' rx='12' fill='#f0f9ff'/>
+      <text x='0' y='94' font-family='sans-serif' font-size='12' font-weight='800' fill='#0284c7' text-anchor='middle'>⭐ Strategy</text>
     </g>
 
-    <!-- Member 5: 3D Graphics Dev (Right 2) -->
-    <g transform='translate(250, -20)'>
-      <circle cx='0' cy='-70' r='52' fill='#8b5cf6' opacity='0.9'/>
-      <path d='M -65 80 C -65 -15 65 -15 65 80 Z' fill='#1e293b' stroke='#8b5cf6' stroke-width='3'/>
-      <text x='0' y='-60' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>EC</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='20' font-weight='800' fill='#ffffff' text-anchor='middle'>Elena Chen</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='15' font-weight='600' fill='#a78bfa' text-anchor='middle'>3D WebGL Dev</text>
+    <!-- Member 5: 3D Graphics Dev -->
+    <g transform='translate(250, -30)' filter='url(#shadow)'>
+      <rect x='-75' y='-150' width='150' height='270' rx='20' fill='#ffffff' stroke='#8b5cf6' stroke-width='2'/>
+      <circle cx='0' cy='-70' r='46' fill='#8b5cf6'/>
+      <text x='0' y='-60' font-family='sans-serif' font-size='28' font-weight='900' fill='#ffffff' text-anchor='middle'>EC</text>
+      <text x='0' y='30' font-family='sans-serif' font-size='18' font-weight='800' fill='#0f172a' text-anchor='middle'>Elena Chen</text>
+      <text x='0' y='55' font-family='sans-serif' font-size='14' font-weight='700' fill='#7c3aed' text-anchor='middle'>3D WebGL Dev</text>
+      <rect x='-50' y='75' width='100' height='22' rx='11' fill='#f5f3ff'/>
+      <text x='0' y='90' font-family='sans-serif' font-size='11' font-weight='700' fill='#7c3aed' text-anchor='middle'>Simulation</text>
     </g>
 
-    <!-- Member 6: Agile Coach & Scrum Master (Right 1) -->
-    <g transform='translate(420, 20)'>
-      <circle cx='0' cy='-70' r='52' fill='#06b6d4' opacity='0.9'/>
-      <path d='M -65 80 C -65 -15 65 -15 65 80 Z' fill='#1e293b' stroke='#06b6d4' stroke-width='3'/>
-      <text x='0' y='-60' font-family='sans-serif' font-size='32' font-weight='900' fill='#ffffff' text-anchor='middle'>DK</text>
-      <text x='0' y='125' font-family='sans-serif' font-size='20' font-weight='800' fill='#ffffff' text-anchor='middle'>Devon Kim</text>
-      <text x='0' y='150' font-family='sans-serif' font-size='15' font-weight='600' fill='#67e8f9' text-anchor='middle'>Scrum Master</text>
+    <!-- Member 6: Scrum Master -->
+    <g transform='translate(420, 0)' filter='url(#shadow)'>
+      <rect x='-75' y='-150' width='150' height='270' rx='20' fill='#ffffff' stroke='#06b6d4' stroke-width='2'/>
+      <circle cx='0' cy='-70' r='46' fill='#06b6d4'/>
+      <text x='0' y='-60' font-family='sans-serif' font-size='28' font-weight='900' fill='#ffffff' text-anchor='middle'>DK</text>
+      <text x='0' y='30' font-family='sans-serif' font-size='18' font-weight='800' fill='#0f172a' text-anchor='middle'>Devon Kim</text>
+      <text x='0' y='55' font-family='sans-serif' font-size='14' font-weight='700' fill='#0891b2' text-anchor='middle'>Scrum Master</text>
+      <rect x='-50' y='75' width='100' height='22' rx='11' fill='#ecfeff'/>
+      <text x='0' y='90' font-family='sans-serif' font-size='11' font-weight='700' fill='#0891b2' text-anchor='middle'>Agile Delivery</text>
     </g>
   </g>
 
-  <!-- Bottom Instructions Pill -->
+  <!-- Bottom Elegant Footer Pill -->
   <g transform='translate(800, 835)'>
-    <rect x='-380' y='-24' width='760' height='48' rx='24' fill='#0f172a' stroke='#334155' stroke-width='1.5'/>
-    <text x='0' y='8' font-family='sans-serif' font-size='16' font-weight='600' fill='#cbd5e1' text-anchor='middle'>
-      📸 [ MOCK GROUP PHOTO ] • Drop your photo at <tspan fill='#38bdf8' font-weight='700'>public/team-photo.png</tspan>
+    <rect x='-320' y='-22' width='640' height='44' rx='22' fill='#ffffff' stroke='#0284c7' stroke-width='1.5' filter='url(#shadow)'/>
+    <text x='0' y='6' font-family='sans-serif' font-size='15' font-weight='700' fill='#475569' text-anchor='middle'>
+      📸 Team Abu Photo Stage • Replace image in <tspan fill='#0284c7' font-weight='800'>public/team-photo.png</tspan>
     </text>
   </g>
 </svg>

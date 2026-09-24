@@ -9,35 +9,23 @@ const DESTINATIONS = [
     name: 'PI Objectives Land',
     x: -30,
     y: 0.8,
-    z: -56, // Spawns directly before Checkpoint 1 start line
+    z: -52, // Spawns directly before Checkpoint 1 start line
     heading: Math.PI, // Facing South straight towards Checkpoint 1!
     badgeColor: '#0284c7',
     badgeText: '01',
-    description: 'Start at Checkpoint 1, then follow the numbered track 1 ➔ 2 ➔ 3 ➔ 4 ➔ 5.',
+    description: 'Explore the 5 PI Objectives across the interactive racing circuit.',
     isModal: false,
-  },
-  {
-    id: 'business-value',
-    name: 'Business Value & Commitments',
-    x: 30,
-    y: 0.8,
-    z: -18,
-    heading: Math.PI,
-    badgeColor: '#10b981',
-    badgeText: '02',
-    description: 'Instant card modal showing projected ROI, sprint metrics, and PI commitment.',
-    isModal: true,
   },
   {
     id: 'team-land',
     name: 'Our Team Land',
-    x: 0,
+    x: 32,
     y: 0.8,
-    z: 28,
-    heading: 0,
+    z: -20, // Spawns directly in front of Team Photo Stage
+    heading: 0, // Facing North straight towards Team Photo Stage!
     badgeColor: '#f97316',
-    badgeText: '03',
-    description: 'Visit Team Abu 3D group photo stage, spotlights, and engineering roster.',
+    badgeText: '02',
+    description: 'Visit Team Abu gallery stage, spotlights, and squad roster.',
     isModal: false,
   },
 ];
@@ -171,8 +159,8 @@ export function MapOverlay() {
           })}
         </div>
 
-        {/* Destination Quick-Teleport Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+        {/* Destination Quick-Teleport Cards - Both Side by Side */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
           {DESTINATIONS.map((dest) => (
             <div
               key={dest.id}

@@ -1,116 +1,94 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 
-// Waypoints and signage for each circuit segment
-const SEGMENT_CONFIGS = {
-  // SEGMENT 1: Approach to Objective 1 (North-South straight line)
+// Waypoints for single unified type of arrow: Volumetric 3D Floating Neon Arrow Wedges
+const STAGE_ROUTES = {
+  // STAGE 1: Start Launch Box [0, 0, 0] -> NW Highway -> Approach Checkpoint 1 [-30, 0, -42]
   1: {
     color: '#00ffff',
-    accentColor: '#00b4d8',
-    ground: [
-      { pos: [-30, 0.028, -54], angle: Math.PI, scale: 1.35 },
-      { pos: [-30, 0.028, -50], angle: Math.PI, scale: 1.4 },
-      { pos: [-30, 0.028, -46], angle: Math.PI, scale: 1.45 },
+    glowColor: '#0284c7',
+    chevrons: [
+      { pos: [-0.8, 0.22, -3.0], angle: 0.22, scale: 1.25 },
+      { pos: [-2.2, 0.22, -6.5], angle: 0.42, scale: 1.3 },
+      { pos: [-4.6, 0.22, -10.8], angle: 0.58, scale: 1.35 },
+      { pos: [-7.8, 0.22, -15.8], angle: 0.65, scale: 1.4 },
+      { pos: [-11.8, 0.22, -21.4], angle: 0.68, scale: 1.45 },
+      { pos: [-16.0, 0.22, -27.2], angle: 0.68, scale: 1.45 },
+      { pos: [-20.4, 0.22, -33.4], angle: 0.68, scale: 1.45 },
+      { pos: [-25.0, 0.22, -39.8], angle: 0.72, scale: 1.45 },
+      { pos: [-28.8, 0.22, -46.5], angle: 0.85, scale: 1.5 },
+      { pos: [-30.0, 0.22, -52.5], angle: Math.PI, scale: 1.5 },
+      { pos: [-30.0, 0.22, -47.0], angle: Math.PI, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-26.2, 0, -52], rotY: Math.PI / 2, arrowDirection: 'left' },
-      { pos: [-33.8, 0, -48], rotY: -Math.PI / 2, arrowDirection: 'right' },
-    ],
-    floatSign: { pos: [-30, 3.2, -50], rotY: 0, arrowDirection: 'straight' },
   },
 
-  // SEGMENT 2: CP1 [-30, -42] -> CP2 [-48, -30] (Curving West / Right Turn from South)
+  // STAGE 2: CP1 [-30, -42] -> CP2 [-48, -30] (Curving West / Right Turn around corner)
   2: {
     color: '#00ffff',
-    accentColor: '#0284c7',
-    ground: [
-      { pos: [-32.5, 0.028, -39.5], angle: 0.68 * Math.PI, scale: 1.3 },
-      { pos: [-36.2, 0.028, -36.5], angle: 0.75 * Math.PI, scale: 1.35 },
-      { pos: [-40.0, 0.028, -34.0], angle: 0.82 * Math.PI, scale: 1.4 },
-      { pos: [-44.0, 0.028, -31.8], angle: 0.88 * Math.PI, scale: 1.45 },
+    glowColor: '#0284c7',
+    chevrons: [
+      { pos: [-31.8, 0.22, -39.5], angle: 0.68 * Math.PI, scale: 1.4 },
+      { pos: [-35.5, 0.22, -36.5], angle: 0.75 * Math.PI, scale: 1.4 },
+      { pos: [-39.5, 0.22, -34.0], angle: 0.80 * Math.PI, scale: 1.45 },
+      { pos: [-43.5, 0.22, -32.0], angle: 0.85 * Math.PI, scale: 1.45 },
+      { pos: [-46.8, 0.22, -30.5], angle: 0.90 * Math.PI, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-30.0, 0, -34.0], rotY: 0, arrowDirection: 'right' },
-      { pos: [-35.0, 0, -31.0], rotY: 0.35, arrowDirection: 'right' },
-      { pos: [-41.0, 0, -28.0], rotY: 0.7, arrowDirection: 'right' },
-    ],
-    floatSign: { pos: [-37, 3.2, -35], rotY: 0.75, arrowDirection: 'right' },
   },
 
-  // SEGMENT 3: CP2 [-48, -30] -> CP3 [-30, -14] (Curving South-East / Left Turn)
+  // STAGE 3: CP2 [-48, -30] -> CP3 [-30, -14] (Curving South-East / Left Turn)
   3: {
     color: '#00ffff',
-    accentColor: '#0284c7',
-    ground: [
-      { pos: [-45.0, 0.028, -26.5], angle: 0.32 * Math.PI, scale: 1.3 },
-      { pos: [-41.2, 0.028, -23.5], angle: 0.26 * Math.PI, scale: 1.35 },
-      { pos: [-37.5, 0.028, -20.0], angle: 0.22 * Math.PI, scale: 1.4 },
-      { pos: [-33.5, 0.028, -16.5], angle: 0.18 * Math.PI, scale: 1.45 },
+    glowColor: '#0284c7',
+    chevrons: [
+      { pos: [-45.5, 0.22, -27.2], angle: 0.32 * Math.PI, scale: 1.4 },
+      { pos: [-42.0, 0.22, -23.8], angle: 0.27 * Math.PI, scale: 1.4 },
+      { pos: [-38.2, 0.22, -20.2], angle: 0.23 * Math.PI, scale: 1.45 },
+      { pos: [-34.5, 0.22, -17.0], angle: 0.20 * Math.PI, scale: 1.45 },
+      { pos: [-31.2, 0.22, -14.6], angle: 0.18 * Math.PI, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-52.5, 0, -28.5], rotY: -Math.PI / 2, arrowDirection: 'left' },
-      { pos: [-49.0, 0, -22.5], rotY: -Math.PI / 3, arrowDirection: 'left' },
-      { pos: [-44.0, 0, -16.5], rotY: -Math.PI / 6, arrowDirection: 'left' },
-    ],
-    floatSign: { pos: [-39, 3.2, -22], rotY: -0.85, arrowDirection: 'left' },
   },
 
-  // SEGMENT 4: CP3 [-30, -14] -> CP4 [-12, -30] (Curving North-East / Left Turn)
+  // STAGE 4: CP3 [-30, -14] -> CP4 [-12, -30] (Curving North-East / Left Turn)
   4: {
     color: '#00ffff',
-    accentColor: '#0284c7',
-    ground: [
-      { pos: [-27.0, 0.028, -17.5], angle: -0.22 * Math.PI, scale: 1.3 },
-      { pos: [-23.0, 0.028, -20.5], angle: -0.25 * Math.PI, scale: 1.35 },
-      { pos: [-19.0, 0.028, -24.0], angle: -0.26 * Math.PI, scale: 1.4 },
-      { pos: [-15.0, 0.028, -27.5], angle: -0.28 * Math.PI, scale: 1.45 },
+    glowColor: '#0284c7',
+    chevrons: [
+      { pos: [-27.5, 0.22, -16.5], angle: -0.20 * Math.PI, scale: 1.4 },
+      { pos: [-24.0, 0.22, -19.5], angle: -0.24 * Math.PI, scale: 1.4 },
+      { pos: [-20.0, 0.22, -23.0], angle: -0.26 * Math.PI, scale: 1.45 },
+      { pos: [-16.5, 0.22, -26.5], angle: -0.28 * Math.PI, scale: 1.45 },
+      { pos: [-13.5, 0.22, -29.0], angle: -0.30 * Math.PI, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-28.5, 0, -9.5], rotY: Math.PI, arrowDirection: 'left' },
-      { pos: [-22.5, 0, -12.5], rotY: (3 * Math.PI) / 4, arrowDirection: 'left' },
-      { pos: [-16.5, 0, -17.5], rotY: Math.PI / 2, arrowDirection: 'left' },
-    ],
-    floatSign: { pos: [-21, 3.2, -22], rotY: 0.85, arrowDirection: 'left' },
   },
 
-  // SEGMENT 5: CP4 [-12, -30] -> CP5 [-30, -30] (Straight West into Center Finish Arch)
+  // STAGE 5: CP4 [-12, -30] -> CP5 [-30, -30] (Straight West into Center Finish Arch)
   5: {
-    color: '#fbbf24', // Radiant Amber/Gold for Grand Finish
-    accentColor: '#f59e0b',
-    ground: [
-      { pos: [-15.5, 0.028, -30], angle: Math.PI / 2, scale: 1.4 },
-      { pos: [-19.5, 0.028, -30], angle: Math.PI / 2, scale: 1.45 },
-      { pos: [-23.5, 0.028, -30], angle: Math.PI / 2, scale: 1.5 },
-      { pos: [-27.5, 0.028, -30], angle: Math.PI / 2, scale: 1.55 },
+    color: '#fbbf24', // Radiant Amber/Gold for the Grand Finale
+    glowColor: '#f59e0b',
+    chevrons: [
+      { pos: [-15.0, 0.22, -30.0], angle: Math.PI / 2, scale: 1.45 },
+      { pos: [-18.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.45 },
+      { pos: [-22.0, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
+      { pos: [-25.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
+      { pos: [-28.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-7.5, 0, -30], rotY: -Math.PI / 2, arrowDirection: 'left' },
-      { pos: [-18.0, 0, -33.8], rotY: 0, arrowDirection: 'left' },
-      { pos: [-24.0, 0, -26.2], rotY: Math.PI, arrowDirection: 'right' },
-    ],
-    floatSign: { pos: [-21, 3.4, -30], rotY: -Math.PI / 2, arrowDirection: 'straight' },
   },
 
-  // SEGMENT 6: From CP5 / Arena back to Central Roundabout & South Highway to Our Team Plaza
+  // STAGE 6: Objectives Complete -> Cross Boulevard East directly into Our Team Land [32, 0, -30] (Side by Side!)
   6: {
     color: '#f97316', // Vibrant Orange for Team Plaza
-    accentColor: '#ea580c',
-    ground: [
-      { pos: [-20, 0.028, -20], angle: -0.25 * Math.PI, scale: 1.3 },
-      { pos: [-12, 0.028, -12], angle: -0.25 * Math.PI, scale: 1.35 },
-      { pos: [-5, 0.028, -5], angle: -0.25 * Math.PI, scale: 1.4 },
-      { pos: [0, 0.028, 5], angle: Math.PI, scale: 1.45 },
-      { pos: [0, 0.028, 14], angle: Math.PI, scale: 1.5 },
-      { pos: [0, 0.028, 22], angle: Math.PI, scale: 1.55 },
+    glowColor: '#ea580c',
+    chevrons: [
+      { pos: [-20.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.4 },
+      { pos: [-12.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.4 },
+      { pos: [-4.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [4.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [12.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [20.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.5 },
+      { pos: [27.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.5 },
     ],
-    signs: [
-      { pos: [-2, 0, 10], rotY: Math.PI / 2, arrowDirection: 'straight' },
-      { pos: [4.5, 0, 18], rotY: -Math.PI / 2, arrowDirection: 'straight' },
-    ],
-    floatSign: { pos: [0, 3.2, 16], rotY: 0, arrowDirection: 'straight' },
   },
 };
 
@@ -118,230 +96,115 @@ export function CircuitNeonDirections() {
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
   const objectivesCompleted = usePortfolioStore((s) => s.objectivesCompleted);
 
-  // Active segment (1 to 5, or 6 for Completed -> Team Land)
-  const activeSegmentKey = objectivesCompleted || targetCheckpointIndex >= 6 ? 6 : targetCheckpointIndex;
-  const config = SEGMENT_CONFIGS[activeSegmentKey] || SEGMENT_CONFIGS[1];
+  // Active stage (1 to 5, or 6 for Completed -> Team Land)
+  const activeStage = objectivesCompleted || targetCheckpointIndex >= 6 ? 6 : targetCheckpointIndex;
+  const config = STAGE_ROUTES[activeStage] || STAGE_ROUTES[1];
 
-  // Symmetric sharp chevron shape
+  // Symmetric, clean aerodynamic racing chevron 2D shape
   const chevronShape = useMemo(() => {
     const shape = new THREE.Shape();
-    shape.moveTo(0, 0.42);
-    shape.lineTo(0.72, -0.32);
-    shape.lineTo(0.48, -0.32);
-    shape.lineTo(0, 0.12);
-    shape.lineTo(-0.48, -0.32);
-    shape.lineTo(-0.72, -0.32);
+    // Points along +Y
+    shape.moveTo(0, 0.62);
+    shape.lineTo(0.92, -0.42);
+    shape.lineTo(0.58, -0.42);
+    shape.lineTo(0, 0.18);
+    shape.lineTo(-0.58, -0.42);
+    shape.lineTo(-0.92, -0.42);
     shape.closePath();
     return shape;
   }, []);
 
-  const groundRefs = useRef([]);
-  const signRefs = useRef([]);
+  // 3D Extruded geometry for volumetric floating arrow wedge with beveled edges
+  const extrudeGeom = useMemo(() => {
+    return new THREE.ExtrudeGeometry(chevronShape, {
+      depth: 0.16,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 1,
+      bevelSize: 0.03,
+      bevelThickness: 0.03,
+    });
+  }, [chevronShape]);
 
-  // High-speed synchronized neon chase animation
+  const arrowRefs = useRef([]);
+  const coreMatRefs = useRef([]);
+
+  // Smooth, synchronized forward light pulse animation along the driving line
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
-    // 1. Ground Chevrons Wave
-    groundRefs.current.forEach((ref, idx) => {
+    arrowRefs.current.forEach((ref, idx) => {
       if (!ref) return;
-      const wave = Math.sin(time * 7.5 - idx * 0.85);
-      const intensity = wave > 0 ? 0.35 + 0.65 * wave : 0.18;
-      if (ref.material) {
-        ref.material.opacity = intensity;
-      }
+      const initialY = config.chevrons[idx]?.pos[1] || 0.22;
+      // Gentle floating bob
+      ref.position.y = initialY + Math.sin(time * 5.0 - idx * 0.65) * 0.04;
     });
 
-    // 2. Roadside Sign Chevrons Flash Sequence
-    signRefs.current.forEach((ref, idx) => {
-      if (!ref) return;
-      const chIdx = idx % 3;
-      const pulse = Math.sin(time * 11 - chIdx * 1.1);
-      const alpha = pulse > 0.1 ? 0.95 : 0.22;
-      if (ref.material) {
-        ref.material.opacity = alpha;
-      }
+    coreMatRefs.current.forEach((mat, idx) => {
+      if (!mat) return;
+      // High-speed light chase pulse wave
+      const wave = Math.sin(time * 7.0 - idx * 0.75);
+      const intensity = wave > 0 ? 0.4 + 0.6 * wave : 0.25;
+      mat.opacity = intensity;
     });
   });
 
-  // Calculate local chevron rotation based on direction ('left', 'right', 'straight')
-  const getSignChevronRotZ = (dir, chIdx) => {
-    if (dir === 'left') return Math.PI / 2;
-    if (dir === 'right') return -Math.PI / 2;
-    return 0; // straight up
-  };
-
   return (
-    <group name={`circuit-neon-directions-stage-${activeSegmentKey}`}>
-      {/* ========================================================
-          1. ANIMATED GROUND NEON CHEVRONS FOR ACTIVE SEGMENT
-         ======================================================== */}
-      {config.ground.map((item, i) => (
-        <group key={`circuit-ground-${activeSegmentKey}-${i}`} position={item.pos}>
-          {/* Neon ground decal puddle glow */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]}>
-            <circleGeometry args={[1.5 * item.scale, 20]} />
+    <group name={`unified-neon-directions-stage-${activeStage}`}>
+      {config.chevrons.map((item, i) => (
+        <group key={`3d-arrow-${activeStage}-${i}`} position={[item.pos[0], 0, item.pos[2]]}>
+          {/* Ground Contact Shadow / Ambient Neon Footprint on Asphalt */}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
+            <circleGeometry args={[1.6 * item.scale, 20]} />
             <meshBasicMaterial
               color={config.color}
               transparent
-              opacity={0.08}
+              opacity={0.16}
               depthWrite={false}
             />
           </mesh>
 
-          {/* Outer glowing neon chevron border (Additive glow) */}
-          <mesh
+          {/* Elevated Volumetric 3D Floating Arrow Wedge */}
+          <group
+            ref={(el) => (arrowRefs.current[i] = el)}
+            position={[0, item.pos[1], 0]}
             rotation={[-Math.PI / 2, 0, item.angle]}
-            scale={[item.scale * 1.25, item.scale * 1.25, 1]}
-            position={[0, 0.001, 0]}
+            scale={[item.scale, item.scale, item.scale]}
           >
-            <shapeGeometry args={[chevronShape]} />
-            <meshBasicMaterial
-              color={config.accentColor}
-              transparent
-              opacity={0.4}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-            />
-          </mesh>
-
-          {/* Core bright neon chevron with animated opacity */}
-          <mesh
-            ref={(el) => (groundRefs.current[i] = el)}
-            rotation={[-Math.PI / 2, 0, item.angle]}
-            scale={[item.scale, item.scale, 1]}
-            position={[0, 0.003, 0]}
-          >
-            <shapeGeometry args={[chevronShape]} />
-            <meshBasicMaterial
-              color={config.color}
-              transparent
-              opacity={0.8}
-              depthWrite={false}
-            />
-          </mesh>
-        </group>
-      ))}
-
-      {/* ========================================================
-          2. ROADSIDE ARCADE NEON SIGNBOARDS ON CORNERS
-         ======================================================== */}
-      {config.signs.map((sign, signIdx) => (
-        <group
-          key={`circuit-sign-${activeSegmentKey}-${signIdx}`}
-          position={sign.pos}
-          rotation={[0, sign.rotY, 0]}
-        >
-          {/* Real-time neon ambient light */}
-          <pointLight
-            color={config.color}
-            intensity={2.6}
-            distance={5.5}
-            position={[0, 1.4, 0.4]}
-          />
-
-          {/* Matte dark mounting stanchions */}
-          <mesh position={[-1.15, 0.85, 0]} castShadow>
-            <boxGeometry args={[0.07, 1.7, 0.07]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
-          </mesh>
-          <mesh position={[1.15, 0.85, 0]} castShadow>
-            <boxGeometry args={[0.07, 1.7, 0.07]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
-          </mesh>
-
-          {/* Sign board frame */}
-          <group position={[0, 1.35, 0]}>
-            <mesh castShadow receiveShadow>
-              <boxGeometry args={[2.6, 1.0, 0.06]} />
-              <meshStandardMaterial color="#030712" roughness={0.2} metalness={0.85} />
+            {/* 3D Dark Midnight-Slate Beveled Chassis (Gives maximum contrast on white floor) */}
+            <mesh geometry={extrudeGeom} castShadow receiveShadow>
+              <meshStandardMaterial
+                color="#0f172a"
+                roughness={0.2}
+                metalness={0.8}
+              />
             </mesh>
 
-            {/* Neon glowing wireframe border */}
-            <mesh position={[0, 0, 0.035]}>
-              <planeGeometry args={[2.64, 1.04]} />
-              <meshBasicMaterial color={config.color} wireframe transparent opacity={0.85} />
+            {/* Glowing Neon Cap on the Top Face (Pointing towards direction) */}
+            <mesh position={[0, 0, 0.17]}>
+              <shapeGeometry args={[chevronShape]} />
+              <meshBasicMaterial
+                ref={(el) => (coreMatRefs.current[i] = el)}
+                color={config.color}
+                transparent
+                opacity={0.9}
+              />
             </mesh>
 
-            {/* 3 Animated Neon Chevrons: [0, 1, 2] */}
-            {[
-              { x: -0.72, idx: 0 },
-              { x: 0.0, idx: 1 },
-              { x: 0.72, idx: 2 },
-            ].map((ch) => {
-              const globalIdx = signIdx * 3 + ch.idx;
-              const rotZ = getSignChevronRotZ(sign.arrowDirection, ch.idx);
-              return (
-                <group key={`sign-ch-${ch.idx}`} position={[ch.x, 0, 0.045]}>
-                  {/* Outer aura */}
-                  <mesh rotation={[0, 0, rotZ]} scale={[0.75, 0.75, 1]}>
-                    <shapeGeometry args={[chevronShape]} />
-                    <meshBasicMaterial
-                      color={config.accentColor}
-                      transparent
-                      opacity={0.4}
-                      blending={THREE.AdditiveBlending}
-                    />
-                  </mesh>
-
-                  {/* Core neon chevron */}
-                  <mesh
-                    ref={(el) => (signRefs.current[globalIdx] = el)}
-                    rotation={[0, 0, rotZ]}
-                    scale={[0.6, 0.6, 1]}
-                    position={[0, 0, 0.002]}
-                  >
-                    <shapeGeometry args={[chevronShape]} />
-                    <meshBasicMaterial color={config.color} transparent opacity={0.9} />
-                  </mesh>
-                </group>
-              );
-            })}
+            {/* Subtle Outer Neon Rim Glow */}
+            <mesh position={[0, 0, 0.168]} scale={[1.12, 1.12, 1]}>
+              <shapeGeometry args={[chevronShape]} />
+              <meshBasicMaterial
+                color={config.glowColor}
+                transparent
+                opacity={0.5}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </mesh>
           </group>
         </group>
       ))}
-
-      {/* ========================================================
-          3. FLOATING 3D HOLOGRAPHIC NEON GUIDE ARROW
-         ======================================================== */}
-      {config.floatSign && (
-        <Float speed={2.5} rotationIntensity={0.1} floatIntensity={0.3}>
-          <group position={config.floatSign.pos} rotation={[0, config.floatSign.rotY, 0]}>
-            <pointLight color={config.color} intensity={2.8} distance={4.2} />
-
-            {/* Neon Disc Halo */}
-            <mesh>
-              <ringGeometry args={[1.25, 1.32, 32]} />
-              <meshBasicMaterial color={config.color} transparent opacity={0.7} />
-            </mesh>
-
-            {/* Floating Left/Right/Straight Neon Chevron pair */}
-            {[-0.3, 0.3].map((offsetX, k) => (
-              <group key={`float-ch-${k}`} position={[offsetX, 0, 0]}>
-                <mesh
-                  rotation={[0, 0, getSignChevronRotZ(config.floatSign.arrowDirection)]}
-                  scale={[0.85, 0.85, 1]}
-                >
-                  <shapeGeometry args={[chevronShape]} />
-                  <meshBasicMaterial color={k === 1 ? '#ffffff' : config.color} />
-                </mesh>
-                <mesh
-                  rotation={[0, 0, getSignChevronRotZ(config.floatSign.arrowDirection)]}
-                  scale={[1.1, 1.1, 1]}
-                >
-                  <shapeGeometry args={[chevronShape]} />
-                  <meshBasicMaterial
-                    color={config.accentColor}
-                    transparent
-                    opacity={0.5}
-                    blending={THREE.AdditiveBlending}
-                  />
-                </mesh>
-              </group>
-            ))}
-          </group>
-        </Float>
-      )}
     </group>
   );
 }

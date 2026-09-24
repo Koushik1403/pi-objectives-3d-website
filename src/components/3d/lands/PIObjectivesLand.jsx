@@ -1,5 +1,4 @@
 import React from 'react';
-import { Text, Float } from '@react-three/drei';
 import { CheckpointArch } from '../CheckpointArch';
 import { CircuitNeonDirections } from '../CircuitNeonDirections';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
@@ -129,39 +128,6 @@ export function PIObjectivesLand() {
       {/* DYNAMIC NEON LIGHTING ARROWS FOR EVERY OBJECTIVE & ROUTE */}
       <CircuitNeonDirections />
 
-      {/* Floating 3D Track Title Billboard in Center (Clean White Studio Billboard) */}
-      <Float speed={2} rotationIntensity={0.1} floatIntensity={0.3} position={[-30, 9.5, -30]}>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[13, 2.2, 0.4]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.3} metalness={0.1} />
-        </mesh>
-        <mesh position={[0, 0, 0.22]}>
-          <boxGeometry args={[12.6, 0.08, 0.05]} />
-          <meshBasicMaterial color="#0284c7" />
-        </mesh>
-        <Text
-          position={[0, 0.4, 0.25]}
-          fontSize={0.85}
-          color="#0f172a"
-          fontWeight={900}
-          anchorX="center"
-          anchorY="middle"
-        >
-          PI OBJECTIVES LAND
-        </Text>
-        <Text
-          position={[0, -0.4, 0.25]}
-          fontSize={0.38}
-          color="#0284c7"
-          fontWeight={700}
-          anchorX="center"
-          anchorY="middle"
-        >
-          {targetCheckpointIndex <= 5
-            ? `ACTIVE TARGET: OBJECTIVE ${targetCheckpointIndex} OF 5`
-            : 'ALL 5 OBJECTIVES COMPLETED! 🏆'}
-        </Text>
-      </Float>
 
       {/* Sequence of Checkpoint Arches - Strictly render ONLY the active target checkpoint */}
       {CHECKPOINTS_DATA.map((cp) => {

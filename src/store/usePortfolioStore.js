@@ -100,7 +100,7 @@ export const portfolioActions = {
         targetCheckpointIndex: 6,
         objectivesCompleted: true,
         currentLand: 'Our Team Land',
-        teleportTarget: { x: 0, y: 0.8, z: 24, heading: 0, name: 'Our Team Land' },
+        teleportTarget: { x: 32, y: 0.8, z: -20, heading: 0, name: 'Our Team Land' },
         isTeleporting: true,
       });
     } else {

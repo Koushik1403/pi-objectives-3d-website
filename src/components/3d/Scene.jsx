@@ -5,7 +5,6 @@ import { Ground } from './Ground';
 import { EnvironmentDecor } from './EnvironmentDecor';
 import { PIObjectivesLand } from './lands/PIObjectivesLand';
 import { TeamLand } from './lands/TeamLand';
-import { NeonLeftArrows } from './NeonLeftArrows';
 import { Car } from './Car';
 import { CameraController } from './CameraController';
 
@@ -45,7 +44,6 @@ export function Scene() {
         <Physics gravity={[0, -24, 0]}>
           <Ground />
           <EnvironmentDecor />
-          <NeonLeftArrows />
           <PIObjectivesLand />
           <TeamLand />
           <Car />

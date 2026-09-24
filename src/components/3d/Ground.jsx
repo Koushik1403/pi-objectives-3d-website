@@ -76,13 +76,6 @@ export function Ground() {
         </Text>
 
 
-        {/* South to Our Team */}
-        <group position={[0, 0.025, 7.5]} rotation={[-Math.PI / 2, 0, Math.PI]}>
-          <Text fontSize={0.48} color="#d97706" fontWeight={800} anchorX="center" anchorY="middle">
-            ▲ OUR TEAM PLAZA (S)
-          </Text>
-        </group>
-
         {/* Starting Grid Launch Box */}
         <group position={[0, 0.024, 0]}>
           {/* Grid Box Border */}
@@ -113,59 +106,56 @@ export function Ground() {
         </mesh>
         {/* Dashed Center Dividing Lines */}
         <DashedRoadLine length={42} color="#ffffff" />
-
-        {/* Road Chevron Decals */}
-        <Text
-          position={[0, 0.026, -10]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          fontSize={0.9}
-          color="#0284c7"
-          fontWeight={900}
-        >
-          ▲▲▲ PI OBJECTIVES ▲▲▲
-        </Text>
       </group>
 
       {/* ========================================================
-          3. HIGHWAY TO OUR TEAM PLAZA (South)
+          3. HIGHWAY TO OUR TEAM PLAZA (North-East, Symmetrical to Highway 2)
          ======================================================== */}
-      <group position={[0, 0, 22]}>
+      <group position={[18, 0, -20]} rotation={[0, -Math.PI / 4.8, 0]}>
         {/* Crisp Light-Gray Asphalt Road Ribbon */}
         <mesh position={[0, 0.016, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[6.5, 30]} />
+          <planeGeometry args={[6.5, 36]} />
           <meshStandardMaterial color="#e2e8f0" roughness={0.6} />
         </mesh>
         {/* Vibrant Orange Curb Strips */}
         <mesh position={[-3.3, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.22, 30]} />
+          <planeGeometry args={[0.22, 36]} />
           <meshBasicMaterial color="#f97316" />
         </mesh>
         <mesh position={[3.3, 0.022, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.22, 30]} />
+          <planeGeometry args={[0.22, 36]} />
           <meshBasicMaterial color="#f97316" />
         </mesh>
         {/* Dashed Center Dividing Lines */}
-        <DashedRoadLine length={26} color="#ffffff" />
-
-        {/* Road Text */}
-        <Text
-          position={[0, 0.026, 6]}
-          rotation={[-Math.PI / 2, 0, Math.PI]}
-          fontSize={0.8}
-          color="#ea580c"
-          fontWeight={900}
-        >
-          ▲▲▲ OUR TEAM PLAZA ▲▲▲
-        </Text>
+        <DashedRoadLine length={32} color="#ffffff" />
       </group>
 
       {/* ========================================================
-          4. FUTURISTIC STREETLAMPS ALONG HIGHWAYS
+          4. CROSS BOULEVARD CONNECTING PI OBJECTIVES AND TEAM LAND
+         ======================================================== */}
+      <group position={[1, 0, -30]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[6.5, 32]} />
+          <meshStandardMaterial color="#e2e8f0" roughness={0.6} />
+        </mesh>
+        <mesh position={[-3.3, 0.021, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.22, 32]} />
+          <meshBasicMaterial color="#0284c7" />
+        </mesh>
+        <mesh position={[3.3, 0.021, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.22, 32]} />
+          <meshBasicMaterial color="#f97316" />
+        </mesh>
+        <DashedRoadLine length={28} color="#ffffff" />
+      </group>
+
+      {/* ========================================================
+          5. FUTURISTIC STREETLAMPS ALONG HIGHWAYS
          ======================================================== */}
       <StreetLamp position={[-8, 0, -8]} rotation={[0, Math.PI / 4, 0]} color="#0284c7" />
       <StreetLamp position={[-16, 0, -18]} rotation={[0, Math.PI / 4, 0]} color="#0284c7" />
-      <StreetLamp position={[-4.5, 0, 16]} rotation={[0, Math.PI / 2, 0]} color="#f97316" />
-      <StreetLamp position={[4.5, 0, 26]} rotation={[0, -Math.PI / 2, 0]} color="#f97316" />
+      <StreetLamp position={[8, 0, -8]} rotation={[0, -Math.PI / 4, 0]} color="#f97316" />
+      <StreetLamp position={[16, 0, -18]} rotation={[0, -Math.PI / 4, 0]} color="#f97316" />
 
       {/* ========================================================
           6. STADIUM PERIMETER BARRIER WALLS (CLEAN WHITE CONCRETE)

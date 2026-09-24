@@ -1,5 +1,5 @@
 import React from 'react';
-import { Map, Volume2, VolumeX, TrendingUp } from 'lucide-react';
+import { Map, Volume2, VolumeX, Navigation } from 'lucide-react';
 import { usePortfolioStore, portfolioActions, getPortfolioState } from '../../store/usePortfolioStore';
 import { sounds } from '../../audio/soundEffects';
 
@@ -17,15 +17,6 @@ export function HUD() {
       portfolioActions.closeModal();
     } else {
       portfolioActions.openMap();
-    }
-  };
-
-  const handleBusinessValueToggle = () => {
-    if (audioEnabled) sounds.click();
-    if (activeModal === 'business-value') {
-      portfolioActions.closeModal();
-    } else {
-      portfolioActions.openBusinessValue();
     }
   };
 
@@ -81,62 +72,47 @@ export function HUD() {
           </button>
         </div>
 
-        {/* Center: Real-Time Dynamic Guidance Indicator */}
-        <div className="hud-group" style={{ pointerEvents: 'auto' }}>
-          {objectivesCompleted || targetCheckpointIndex >= 6 ? (
-            <div className="hud-guide-pill completed">
-              <span className="guide-arrow">🏆</span>
-              <span className="guide-text">ALL OBJECTIVES COMPLETED • VISIT TEAM ABU (SOUTH)</span>
-              <span className="guide-progress" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#059669' }}>
-                5/5
-              </span>
-            </div>
-          ) : targetCheckpointIndex === 1 ? (
-            <div className="hud-guide-pill highlight">
-              <span className="guide-arrow">⮤</span>
-              <span className="guide-text">TAKE LEFT ➔ PI OBJECTIVE 1</span>
-              <span className="guide-progress">0/5</span>
-            </div>
-          ) : targetCheckpointIndex === 2 ? (
-            <div className="hud-guide-pill highlight">
-              <span className="guide-arrow">⮡</span>
-              <span className="guide-text">TURN RIGHT ➔ OBJECTIVE 2</span>
-              <span className="guide-progress">1/5</span>
-            </div>
-          ) : targetCheckpointIndex === 3 ? (
-            <div className="hud-guide-pill highlight">
-              <span className="guide-arrow">⮤</span>
-              <span className="guide-text">TURN LEFT ➔ OBJECTIVE 3</span>
-              <span className="guide-progress">2/5</span>
-            </div>
-          ) : targetCheckpointIndex === 4 ? (
-            <div className="hud-guide-pill highlight">
-              <span className="guide-arrow">⮤</span>
-              <span className="guide-text">TURN LEFT ➔ OBJECTIVE 4</span>
-              <span className="guide-progress">3/5</span>
-            </div>
-          ) : (
-            <div className="hud-guide-pill highlight" style={{ borderColor: '#f59e0b', background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)' }}>
-              <span className="guide-arrow" style={{ color: '#d97706' }}>⮤</span>
-              <span className="guide-text">TURN LEFT ➔ FINAL OBJECTIVE 5</span>
-              <span className="guide-progress" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#d97706' }}>
-                4/5
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Center: Real-Time Dynamic Guidance Indicator (Removed completely after objectives are completed) */}
+        {!objectivesCompleted && targetCheckpointIndex <= 5 && (
+          <div className="hud-group" style={{ pointerEvents: 'auto' }}>
+            {targetCheckpointIndex === 1 ? (
+              <div className="hud-guide-pill highlight">
+                <Navigation size={15} color="#0284c7" />
+                <span className="guide-text">TAKE LEFT ➔ PI OBJECTIVE 1</span>
+                <span className="guide-progress">0/5</span>
+              </div>
+            ) : targetCheckpointIndex === 2 ? (
+              <div className="hud-guide-pill highlight">
+                <Navigation size={15} color="#0284c7" />
+                <span className="guide-text">TURN RIGHT ➔ OBJECTIVE 2</span>
+                <span className="guide-progress">1/5</span>
+              </div>
+            ) : targetCheckpointIndex === 3 ? (
+              <div className="hud-guide-pill highlight">
+                <Navigation size={15} color="#0284c7" />
+                <span className="guide-text">TURN LEFT ➔ OBJECTIVE 3</span>
+                <span className="guide-progress">2/5</span>
+              </div>
+            ) : targetCheckpointIndex === 4 ? (
+              <div className="hud-guide-pill highlight">
+                <Navigation size={15} color="#0284c7" />
+                <span className="guide-text">TURN LEFT ➔ OBJECTIVE 4</span>
+                <span className="guide-progress">3/5</span>
+              </div>
+            ) : (
+              <div className="hud-guide-pill highlight" style={{ borderColor: '#f59e0b', background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)' }}>
+                <Navigation size={15} color="#d97706" />
+                <span className="guide-text">TURN LEFT ➔ FINAL OBJECTIVE 5</span>
+                <span className="guide-progress" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#d97706' }}>
+                  4/5
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Right: Business Value Card & Map Toggle Buttons */}
+        {/* Right: Map Toggle Button */}
         <div className="hud-group">
-          <button
-            className={`hud-btn ${activeModal === 'business-value' ? 'active' : ''}`}
-            onClick={handleBusinessValueToggle}
-            title="View Business Value Metrics & PI Commitments"
-          >
-            <TrendingUp size={16} />
-            <span>Business Value</span>
-          </button>
-
           <button
             className={`hud-btn ${activeModal === 'map' ? 'active' : ''}`}
             onClick={handleMapToggle}
