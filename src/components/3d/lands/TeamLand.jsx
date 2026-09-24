@@ -131,44 +131,54 @@ export function TeamLand() {
           Facing South towards incoming visitors driving from Central Roundabout & PI Objectives
          ======================================================== */}
       <group position={[0, 4.6, -6]} rotation={[0, 0, 0]}>
-        {/* Architectural White & Acrylic Gallery Frame (ZERO BLACK BOARD) */}
-        <mesh position={[0, 0, -0.22]} castShadow>
-          <boxGeometry args={[14.4, 8.6, 0.35]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.15} metalness={0.1} />
+        {/* Heavy Architectural White Gallery Frame */}
+        <mesh position={[0, 0, -0.18]} castShadow>
+          <boxGeometry args={[14.4, 8.6, 0.24]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} />
         </mesh>
 
-        {/* Glowing Electric Cyan Ambient Bezel Trim */}
+        {/* Crisp Cyan Ambient Bezel Trim (Offset forward from backing) */}
         <mesh position={[0, 0, -0.04]}>
-          <boxGeometry args={[14.0, 8.2, 0.06]} />
+          <boxGeometry args={[14.0, 8.2, 0.04]} />
           <meshBasicMaterial color="#0284c7" />
         </mesh>
 
         {/* Inner White Matte Mounting Surface */}
-        <mesh position={[0, 0, 0.02]}>
+        <mesh position={[0, 0, 0.0]}>
           <planeGeometry args={[13.6, 7.8]} />
           <meshStandardMaterial color="#f8fafc" roughness={0.3} metalness={0.05} />
         </mesh>
 
-        {/* Team Group Photo Surface */}
+        {/* Team Group Photo Surface (Cleanly in front with zero co-planar interference) */}
         {texture && (
-          <mesh position={[0, 0, 0.05]}>
+          <mesh position={[0, 0, 0.04]}>
             <planeGeometry args={[13.4, 7.6]} />
             <meshBasicMaterial map={texture} toneMapped={false} />
           </mesh>
         )}
 
-        {/* Sleek Polished Silver / White Pillar Pedestals */}
-        <mesh position={[-5.8, -3.2, -0.2]} castShadow>
-          <boxGeometry args={[0.5, 5.0, 0.5]} />
-          <meshStandardMaterial color="#e2e8f0" roughness={0.2} metalness={0.8} />
+        {/* Sleek Chrome Rear Support Columns (Placed strictly BEHIND the board to prevent any Z-fighting/blinking) */}
+        <mesh position={[-5.6, -2.4, -0.42]}>
+          <boxGeometry args={[0.55, 6.2, 0.35]} />
+          <meshStandardMaterial color="#94a3b8" roughness={0.25} metalness={0.8} />
         </mesh>
-        <mesh position={[5.8, -3.2, -0.2]} castShadow>
-          <boxGeometry args={[0.5, 5.0, 0.5]} />
-          <meshStandardMaterial color="#e2e8f0" roughness={0.2} metalness={0.8} />
+        <mesh position={[5.6, -2.4, -0.42]}>
+          <boxGeometry args={[0.55, 6.2, 0.35]} />
+          <meshStandardMaterial color="#94a3b8" roughness={0.25} metalness={0.8} />
+        </mesh>
+
+        {/* Solid Chrome Floor Anchor Pedestal Feet */}
+        <mesh position={[-5.6, -4.5, -0.42]}>
+          <boxGeometry args={[1.4, 0.24, 1.6]} />
+          <meshStandardMaterial color="#64748b" roughness={0.2} metalness={0.9} />
+        </mesh>
+        <mesh position={[5.6, -4.5, -0.42]}>
+          <boxGeometry args={[1.4, 0.24, 1.6]} />
+          <meshStandardMaterial color="#64748b" roughness={0.2} metalness={0.9} />
         </mesh>
 
         {/* Floating Top 3D Header: Pure Clean Dark Navy on White */}
-        <group position={[0, 4.9, 0.2]}>
+        <group position={[0, 4.9, 0.15]}>
           <Text
             fontSize={0.85}
             color="#0f172a"
@@ -180,11 +190,6 @@ export function TeamLand() {
             TEAM ABU • Q4 2026
           </Text>
         </group>
-
-        {/* Warm Stage Spotlights */}
-        <pointLight position={[-4, 4, 3]} intensity={2.2} distance={14} color="#ffffff" />
-        <pointLight position={[4, 4, 3]} intensity={2.2} distance={14} color="#ffffff" />
-        <pointLight position={[0, 1, 4]} intensity={2.5} distance={16} color="#38bdf8" />
       </group>
     </group>
   );

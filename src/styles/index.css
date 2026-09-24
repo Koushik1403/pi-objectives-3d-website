@@ -828,3 +828,30 @@ body,
   30% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* 3D Wallet Opening & Transaction Styles */
+.wallet-modal-wrapper {
+  animation: walletUnfold 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}
+
+@keyframes walletUnfold {
+  0% {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(-25deg) translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+

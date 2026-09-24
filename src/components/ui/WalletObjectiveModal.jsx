@@ -1,97 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, ChevronLeft, Award, Wallet as WalletIcon, Sparkles } from 'lucide-react';
-import { usePortfolioStore, portfolioActions } from '../../store/usePortfolioStore';
+import { X, ChevronRight, Sparkles, Award, Wallet as WalletIcon } from 'lucide-react';
+import { portfolioActions, usePortfolioStore } from '../../store/usePortfolioStore';
 import { sounds } from '../../audio/soundEffects';
 
-const ALL_OBJECTIVES = [
-  {
-    index: 1,
-    title: 'Wallet Transaction History',
-    sentence: 'Deliver real-time Wallet Transaction History with instant search, categorization, and streaming notifications.',
-    subtitle: 'Phase 1 Core Wallet Built ➔ Phase 2 Real-Time History & Analytics',
-    defaultBv: 9,
-  },
-  {
-    index: 2,
-    title: 'Autonomous AI Agent Pipeline',
-    sentence: 'Deploy autonomous coding and triage agents to automate regression testing, PR verification, and policy auditing.',
-    subtitle: 'Self-Healing Coding Agents ➔ Sub-100ms LLM Streaming Inference',
-    defaultBv: 8,
-  },
-  {
-    index: 3,
-    title: '60 FPS Interactive 3D Web Platform',
-    sentence: 'Deliver a lightweight sub-500KB real-time 3D simulation with dynamic Rapier physics and stable 60 FPS performance.',
-    subtitle: 'Browser-Based 3D Engine ➔ GPU Batching & Zero Mobile Lag',
-    defaultBv: 8,
-  },
-  {
-    index: 4,
-    title: 'Micro-Frontend Design System',
-    sentence: 'Unify 8 enterprise product dashboards into a tokenized modular design system with WCAG AAA accessibility compliance.',
-    subtitle: 'Unified Tokenized Components ➔ Accelerate Feature Velocity by 3.5x',
-    defaultBv: 7,
-  },
-  {
-    index: 5,
-    title: 'Zero-Downtime Deployment & Observability',
-    sentence: 'Implement automated progressive canary releases with real-time Prometheus telemetry and sub-3-minute rollbacks.',
-    subtitle: '25+ Daily Deployments ➔ End-to-End Tracing Across 120+ Microservices',
-    defaultBv: 9,
-  },
-];
-
-export function CheckpointModal() {
-  const activeModal = usePortfolioStore((s) => s.activeModal);
-  const activeCheckpoint = usePortfolioStore((s) => s.activeCheckpoint);
+export function WalletObjectiveModal() {
   const audioEnabled = usePortfolioStore((s) => s.audioEnabled);
-
-  // Unconditional state hooks to guarantee zero React rules-of-hooks violations
   const [isOpen, setIsOpen] = useState(false);
-  const [scores, setScores] = useState({ 1: 9, 2: 8, 3: 8, 4: 7, 5: 9 });
+  const [businessValue, setBusinessValue] = useState(9); // Default Business Value on 1-10 scale
 
-  // Trigger smooth wallet unfold animation & audio clasp whenever modal opens or checkpoint changes
+  // Trigger opening animation & sound on appearance
   useEffect(() => {
-    if (activeModal === 'checkpoint' && activeCheckpoint) {
-      setIsOpen(false);
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        if (audioEnabled) {
-          sounds.walletOpen();
-        }
-      }, 120);
-      return () => clearTimeout(timer);
-    } else {
-      setIsOpen(false);
-    }
-  }, [activeModal, activeCheckpoint?.index, audioEnabled]);
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+      if (audioEnabled) {
+        sounds.walletOpen();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [audioEnabled]);
 
-  if (activeModal !== 'checkpoint' || !activeCheckpoint) return null;
-
-  const currentIndex = activeCheckpoint.index;
-  const currentObj = ALL_OBJECTIVES.find((o) => o.index === currentIndex) || ALL_OBJECTIVES[0];
-  const currentBv = scores[currentIndex] ?? currentObj.defaultBv;
+  const handleNextObjective = () => {
+    if (audioEnabled) sounds.click();
+    portfolioActions.completeCurrentAndAdvance();
+  };
 
   const handleSelectBV = (val) => {
     if (audioEnabled) sounds.click();
-    setScores((prev) => ({ ...prev, [currentIndex]: val }));
-  };
-
-  const navigateTo = (newIndex) => {
-    if (audioEnabled) sounds.click();
-    const target = ALL_OBJECTIVES.find((o) => o.index === newIndex);
-    if (target) {
-      portfolioActions.openCheckpoint({
-        index: target.index,
-        title: target.title,
-        desc: target.sentence,
-      });
-    }
-  };
-
-  const handleNext = () => {
-    if (audioEnabled) sounds.click();
-    portfolioActions.completeCurrentAndAdvance();
+    setBusinessValue(val);
   };
 
   return (
@@ -113,7 +48,7 @@ export function CheckpointModal() {
         style={{
           perspective: '1400px',
           width: '100%',
-          maxWidth: '840px',
+          maxWidth: '820px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -149,7 +84,7 @@ export function CheckpointModal() {
           <X size={18} />
         </button>
 
-        {/* PHYSICAL LEATHER WALLET OBJECT (Unified Across All Objectives) */}
+        {/* PHYSICAL LEATHER WALLET OBJECT */}
         <div
           className={`actual-wallet-object ${isOpen ? 'wallet-unfolded' : 'wallet-folded'}`}
           style={{
@@ -238,23 +173,21 @@ export function CheckpointModal() {
                       color: '#fbbf24',
                     }}
                   >
-                    PI OBJECTIVE {currentIndex} OF 5
+                    PI OBJECTIVE 1
                   </span>
-                  {currentIndex === 1 && (
-                    <span
-                      style={{
-                        fontSize: '0.72rem',
-                        color: '#10b981',
-                        background: 'rgba(16, 185, 129, 0.15)',
-                        border: '1px solid rgba(16, 185, 129, 0.3)',
-                        padding: '2px 8px',
-                        borderRadius: '6px',
-                        fontWeight: 700,
-                      }}
-                    >
-                      Core Wallet Live
-                    </span>
-                  )}
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      color: '#10b981',
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Core Wallet Live
+                  </span>
                 </div>
 
                 {/* Objective Title */}
@@ -268,7 +201,7 @@ export function CheckpointModal() {
                     lineHeight: 1.2,
                   }}
                 >
-                  {currentObj.title}
+                  Wallet Transaction History
                 </h2>
 
                 {/* EXACTLY ONE SENTENCE OBJECTIVE */}
@@ -286,7 +219,7 @@ export function CheckpointModal() {
                     boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
                   }}
                 >
-                  "{currentObj.sentence}"
+                  "Deliver real-time Wallet Transaction History with instant search, categorization, and streaming notifications."
                 </p>
               </div>
 
@@ -302,7 +235,7 @@ export function CheckpointModal() {
                 }}
               >
                 <Sparkles size={14} color="#f59e0b" />
-                <span>{currentObj.subtitle}</span>
+                <span>Phase 1 Core Wallet Built ➔ Phase 2 Real-Time History & Analytics</span>
               </div>
             </div>
 
@@ -361,7 +294,7 @@ export function CheckpointModal() {
                     textShadow: '0 0 35px rgba(245, 158, 11, 0.4)',
                   }}
                 >
-                  {currentBv}
+                  {businessValue}
                 </span>
                 <span
                   style={{
@@ -402,8 +335,8 @@ export function CheckpointModal() {
                   }}
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => {
-                    const isSelected = num === currentBv;
-                    const isFilled = num <= currentBv;
+                    const isSelected = num === businessValue;
+                    const isFilled = num <= businessValue;
                     return (
                       <button
                         key={num}
@@ -454,29 +387,12 @@ export function CheckpointModal() {
               zIndex: 2,
             }}
           >
-            <button
-              disabled={currentIndex === 1}
-              onClick={() => navigateTo(currentIndex - 1)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '10px 16px',
-                borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: currentIndex === 1 ? '#52525b' : '#f4f4f5',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: currentIndex === 1 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <ChevronLeft size={16} />
-              <span>Prev Objective</span>
-            </button>
+            <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
+              Press <kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', color: '#e4e4e7' }}>ESC</kbd> to close wallet
+            </div>
 
             <button
-              onClick={handleNext}
+              onClick={handleNextObjective}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -495,33 +411,8 @@ export function CheckpointModal() {
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
-              <span>
-                {currentIndex < 5
-                  ? `Drive to Objective ${currentIndex + 1} ➔ 🏎️`
-                  : 'Complete PI Tour & Meet Team Abu ➔ 🏆'}
-              </span>
+              <span>Drive to Objective 2 ➔ 🏎️</span>
               <ChevronRight size={17} />
-            </button>
-
-            <button
-              disabled={currentIndex === 5}
-              onClick={() => navigateTo(currentIndex + 1)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '10px 16px',
-                borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: currentIndex === 5 ? '#52525b' : '#f4f4f5',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: currentIndex === 5 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <span>Next Objective</span>
-              <ChevronRight size={16} />
             </button>
           </div>
         </div>

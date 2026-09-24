@@ -18,6 +18,45 @@ function getAudioContext() {
 }
 
 export const sounds = {
+  // Opening wallet clasp and fintech harmonic chime
+  walletOpen: () => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // 1. Mechanical leather magnetic clasp click
+      const clickOsc = ctx.createOscillator();
+      const clickGain = ctx.createGain();
+      clickOsc.type = 'triangle';
+      clickOsc.frequency.setValueAtTime(140, now);
+      clickOsc.frequency.exponentialRampToValueAtTime(40, now + 0.04);
+      clickGain.gain.setValueAtTime(0.25, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      clickOsc.connect(clickGain);
+      clickGain.connect(ctx.destination);
+      clickOsc.start(now);
+      clickOsc.stop(now + 0.06);
+
+      // 2. Rising modern fintech ripple chime (C5 -> E5 -> G5 -> C6)
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + 0.05 + i * 0.05);
+        gain.gain.setValueAtTime(0.001, now + 0.05 + i * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.05 + i * 0.05 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05 + i * 0.05 + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + 0.05 + i * 0.05);
+        osc.stop(now + 0.05 + i * 0.05 + 0.45);
+      });
+    } catch {
+      // AudioContext policy fallback
+    }
+  },
+
   // Checkpoint bell chime
   checkpoint: () => {
     try {

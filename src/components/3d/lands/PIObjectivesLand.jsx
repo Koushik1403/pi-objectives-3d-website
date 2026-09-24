@@ -11,12 +11,13 @@ const CHECKPOINTS_DATA = [
     position: [-30, 0, -42],
     rotation: [0, 0, 0], // Spans East-West across North-South road (car driving South +Z)
     nextSignAngle: -Math.PI / 4, // Points towards Checkpoint 2 (West-South-West)
-    title: 'Cloud-Native Architecture & Resiliency',
-    desc: 'Establish multi-region Kubernetes infrastructure with automatic failover, sub-50ms latency, and automated horizontal pod autoscaling.',
+    title: 'Wallet Transaction History',
+    desc: 'Having developed and launched our core Wallet, Team Abu is now delivering real-time Transaction History with sub-50ms query speeds, smart categorization, and streaming telemetry.',
     keyResults: [
-      'Achieve 99.99% service level objective (SLO)',
-      'Migrate database cluster to distributed serverless Aurora',
-      'Reduce p99 API response time below 45ms',
+      'Sub-50ms p99 query latency across 10M+ transaction history records',
+      'Real-time streaming event ingestion via Kafka & instant push alerts',
+      'AI-driven automatic transaction categorization (98%+ precision)',
+      '1-Click ISO 20022 compliant statements & audit history exports',
     ],
   },
   {
