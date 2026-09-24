@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { RigidBody, CuboidCollider, vec3 } from '@react-three/rapier';
+import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -18,7 +18,7 @@ export function Car() {
   const rigidBodyRef = useRef(null);
   const visualGroupRef = useRef(null);
 
-  // Separate steering knuckle refs (swivels Y) and wheel spin refs (rolls X)
+  // Steering knuckle refs (swivels Y) and wheel spin refs (rolls X)
   const frontLeftSteerRef = useRef(null);
   const frontRightSteerRef = useRef(null);
   const frontLeftSpinRef = useRef(null);
@@ -205,7 +205,6 @@ export function Car() {
     // Calculate car forward vector from current quaternion
     const carQuat = new THREE.Quaternion(rotation.x, rotation.y, rotation.z, rotation.w);
     const forwardVec = new THREE.Vector3(0, 0, -1).applyQuaternion(carQuat);
-    const rightVec = new THREE.Vector3(1, 0, 0).applyQuaternion(carQuat);
 
     // Current forward speed (scalar projection)
     const currentVelocity = new THREE.Vector3(linvel.x, linvel.y, linvel.z);
@@ -213,21 +212,17 @@ export function Car() {
 
     // 1. Snappy Arcade Acceleration, Reversing & Braking
     if (keys.current.forward) {
-      // Increased acceleration: quick, punchy launch
       speed += 38.0 * delta;
       if (speed > MAX_SPEED) speed = MAX_SPEED;
     } else if (keys.current.backward) {
       if (speed > 0.2) {
-        // Instant strong footbrake when moving forward
         speed -= 55.0 * delta;
         if (speed < 0) speed = 0;
       } else {
-        // High-speed, fast reverse acceleration
         speed -= 32.0 * delta;
         if (speed < -24.0) speed = -24.0;
       }
     } else {
-      // Smooth coasting deceleration
       speed = THREE.MathUtils.lerp(speed, 0, delta * 2.4);
       if (Math.abs(speed) < 0.05) speed = 0;
     }
@@ -238,22 +233,19 @@ export function Car() {
       if (Math.abs(speed) < 0.1) speed = 0;
     }
 
-    // 2. Smooth Agile Steering (Slightly reduced for natural control)
+    // 2. Smooth Agile Steering
     let targetSteer = 0;
     if (keys.current.left) targetSteer += 0.58;
     if (keys.current.right) targetSteer -= 0.58;
 
-    // Smooth front wheel steering angle with natural response
     steerAngle.current = THREE.MathUtils.lerp(steerAngle.current, targetSteer, delta * 13);
 
-    // Dynamic Turn Rate: Gently reduced for balanced, smooth cornering
     const speedAbs = Math.abs(speed);
     const motionFactor = Math.min(speedAbs * 0.24 + 0.60, 1.15);
     const reverseFactor = speed < -0.2 ? -1 : 1;
     const steerDirection = keys.current.left ? 1 : (keys.current.right ? -1 : 0);
     const targetTurnRate = steerDirection * 2.55 * motionFactor * reverseFactor;
 
-    // Smooth direct angular velocity control
     const currentAngvel = rb.angvel();
     const nextAngvelY = THREE.MathUtils.lerp(
       currentAngvel.y,
@@ -262,31 +254,30 @@ export function Car() {
     );
     rb.setAngvel({ x: 0, y: nextAngvelY, z: 0 }, true);
 
-    // 3. Direct Velocity Application (Car moves along its heading with full power and arcade grip)
+    // 3. Direct Velocity Application
     const newHorizVel = forwardVec.clone().multiplyScalar(speed);
     rb.setLinvel({
       x: newHorizVel.x,
-      y: linvel.y, // preserve vertical physics gravity
+      y: linvel.y,
       z: newHorizVel.z,
     }, true);
 
     // Keep car grounded and upright
-    if (translation.y > 2.0) {
+    if (translation.y > 2.2) {
       rb.applyImpulse({ x: 0, y: -3.0, z: 0 }, true);
     }
 
-    // 5. Realistic Physical Wheel Animation
-    // True rolling without slip: angular velocity omega = v / r
-    const effectiveRadius = 0.46;
+    // 4. Wheel Rolling Animation
+    const effectiveRadius = 0.54;
     wheelSpin.current += (speed / effectiveRadius) * delta;
 
-    // Front wheels: swivel Y axis ONLY on the steering knuckle (no wobbling or gimbal lock)
+    // Front wheels steer on Y
     if (frontLeftSteerRef.current && frontRightSteerRef.current) {
       frontLeftSteerRef.current.rotation.y = steerAngle.current;
       frontRightSteerRef.current.rotation.y = steerAngle.current;
     }
 
-    // All 4 wheels: spin on X axis ONLY (car forward is -Z, so -wheelSpin rotates from +Y to -Z forward)
+    // All 4 wheels spin on X
     if (frontLeftSpinRef.current) frontLeftSpinRef.current.rotation.x = -wheelSpin.current;
     if (frontRightSpinRef.current) frontRightSpinRef.current.rotation.x = -wheelSpin.current;
     if (rearLeftSpinRef.current) rearLeftSpinRef.current.rotation.x = -wheelSpin.current;
@@ -295,7 +286,6 @@ export function Car() {
     const horizontalSpeed = Math.abs(speed);
     const kmh = Math.round(horizontalSpeed * 3.6);
 
-    // Direct DOM update for zero-latency 60fps speedometer
     const speedEl = document.getElementById('hud-speed-num');
     if (speedEl && speedEl.textContent !== String(kmh)) {
       speedEl.textContent = String(kmh);
@@ -305,7 +295,6 @@ export function Car() {
       speedBarEl.style.width = `${Math.min(100, (kmh / 85) * 100)}%`;
     }
 
-    // Update Telemetry for HUD & Radar
     const euler = new THREE.Euler().setFromQuaternion(carQuat, 'YXZ');
     portfolioActions.updateTelemetry(
       kmh,
@@ -313,7 +302,6 @@ export function Car() {
       euler.y
     );
 
-    // Update real-time dynamic arcade engine sound (pitch & roar scales with speed & acceleration)
     const { audioEnabled } = getPortfolioState();
     const isBraking = keys.current.brake || (keys.current.backward && speed > 0.5);
     const isReversing = speed < -0.2;
@@ -324,347 +312,453 @@ export function Car() {
     <RigidBody
       ref={rigidBodyRef}
       colliders={false}
-      position={[0, 0.9, 0]}
-      mass={240}
+      position={[0, 1.05, 0]}
+      mass={260}
       linearDamping={0.8}
       angularDamping={0.5}
-      enabledRotations={[false, true, false]} // Lock roll and pitch for pure arcade car stability
+      enabledRotations={[false, true, false]}
       name="player-car"
     >
-      {/* Scaled Physics Box Collider with ground clearance for wheels */}
-      <CuboidCollider args={[1.15, 0.50, 2.05]} position={[0, 0.62, 0]} />
+      {/* Scaled Physics Box Collider for lifted monster truck chassis */}
+      <CuboidCollider args={[1.25, 0.58, 2.1]} position={[0, 0.72, 0]} />
 
-      {/* Visual Car Mesh - Team Abu Racing Livery */}
+      {/* ========================================================
+          CYBER RED TROPHY OFF-ROADER / MONSTER 4X4
+          Modeled accurately after the user reference image
+         ======================================================== */}
       <group ref={visualGroupRef} position={[0, 0.05, 0]}>
-        {/* Neon Underglow Lighting */}
-        <pointLight color="#00e5ff" intensity={3.5} distance={4.2} position={[0, 0.18, 0]} />
+        {/* Glowing Magenta / Purple Cockpit & Chassis Underglow */}
+        <pointLight color="#d946ef" intensity={4.5} distance={5.0} position={[0, 1.1, -0.1]} />
+        <pointLight color="#e11d48" intensity={2.8} distance={4.5} position={[0, 0.25, 0]} />
 
-        {/* Main Body Chassis - Sleek Midnight Slate */}
-        <mesh position={[0, 0.56, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.3, 0.58, 4.2]} />
-          <meshStandardMaterial
-            color="#0f172a"
-            roughness={0.2}
-            metalness={0.7}
-            envMapIntensity={1.2}
-          />
+        {/* 1. LOWER FRAME / LIFTED CHASSIS BASE (Dark Charcoal) */}
+        <mesh position={[0, 0.44, 0]} castShadow>
+          <boxGeometry args={[1.72, 0.24, 3.4]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.3} />
         </mesh>
 
-        {/* Clean Aerodynamic Side Skirts (Electric Cyan Accent) */}
-        <mesh position={[-1.18, 0.48, 0]} castShadow>
-          <boxGeometry args={[0.08, 0.36, 3.6]} />
-          <meshStandardMaterial color="#0284c7" roughness={0.3} metalness={0.6} />
+        {/* Front & Rear Heavy Crossmembers / Skid Plates */}
+        <mesh position={[0, 0.38, -1.65]} rotation={[0.3, 0, 0]}>
+          <boxGeometry args={[1.5, 0.12, 0.5]} />
+          <meshStandardMaterial color="#27272a" roughness={0.8} />
         </mesh>
-        <mesh position={[1.18, 0.48, 0]} castShadow>
-          <boxGeometry args={[0.08, 0.36, 3.6]} />
-          <meshStandardMaterial color="#0284c7" roughness={0.3} metalness={0.6} />
-        </mesh>
-
-        {/* Front Aero Splitter */}
-        <mesh position={[0, 0.18, -2.12]} castShadow>
-          <boxGeometry args={[2.50, 0.05, 0.42]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.8} roughness={0.2} />
+        <mesh position={[0, 0.40, 1.65]} rotation={[-0.25, 0, 0]}>
+          <boxGeometry args={[1.5, 0.12, 0.5]} />
+          <meshStandardMaterial color="#27272a" roughness={0.8} />
         </mesh>
 
-        {/* Central Racing Stripe on Hood */}
-        <mesh position={[0, 0.86, -0.75]} castShadow>
-          <boxGeometry args={[0.70, 0.03, 1.8]} />
-          <meshStandardMaterial color="#0284c7" roughness={0.3} metalness={0.5} />
-        </mesh>
-
-        {/* Cockpit Canopy */}
-        <mesh position={[0, 1.10, 0.2]} castShadow>
-          <boxGeometry args={[1.82, 0.60, 1.95]} />
-          <meshStandardMaterial
-            color="#090d16"
-            roughness={0.15}
-            metalness={0.85}
-          />
-        </mesh>
-
-        {/* ========================================================
-            THE SINGLE "ABU" EMBLEM ON THE ROOF (CLEAN & PROMINENT)
-           ======================================================== */}
-        <group position={[0, 1.42, 0.2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <Text
-            fontSize={0.46}
-            color="#ffffff"
-            fontWeight={900}
-            anchorX="center"
-            anchorY="middle"
-            letterSpacing={0.08}
-          >
-            ABU
-          </Text>
-        </group>
-
-        {/* Front Windshield Tint */}
-        <mesh position={[0, 1.14, -0.80]} rotation={[0.42, 0, 0]}>
-          <planeGeometry args={[1.70, 0.64]} />
-          <meshStandardMaterial
-            color="#38bdf8"
-            roughness={0.1}
-            metalness={0.8}
-            transparent
-            opacity={0.65}
-          />
-        </mesh>
-
-        {/* Rear Window Tint */}
-        <mesh position={[0, 1.12, 1.20]} rotation={[-0.42, 0, 0]}>
-          <planeGeometry args={[1.60, 0.54]} />
-          <meshStandardMaterial
-            color="#38bdf8"
-            roughness={0.1}
-            metalness={0.8}
-            transparent
-            opacity={0.65}
-          />
-        </mesh>
-
-        {/* Rear Aerodynamic Wing */}
-        <group position={[0, 1.25, 1.88]}>
-          {/* Spoiler Wing Blade */}
+        {/* 2. CHUNKY FRONT BUMPER WITH VERTICAL SLOTTED GRILLE */}
+        <group position={[0, 0.52, -1.82]}>
+          {/* Main Front Bumper Bar */}
           <mesh castShadow>
-            <boxGeometry args={[2.50, 0.08, 0.46]} />
-            <meshStandardMaterial color="#0284c7" roughness={0.3} metalness={0.6} />
+            <boxGeometry args={[2.08, 0.38, 0.36]} />
+            <meshStandardMaterial color="#18181b" roughness={0.75} metalness={0.2} />
           </mesh>
-          {/* Left Stanchion */}
-          <mesh position={[-0.85, -0.28, 0]} castShadow>
-            <boxGeometry args={[0.08, 0.50, 0.16]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.4} />
+
+          {/* Lower Grille Cutout Frame */}
+          <mesh position={[0, -0.06, 0.14]}>
+            <boxGeometry args={[1.22, 0.24, 0.12]} />
+            <meshStandardMaterial color="#09090b" roughness={0.9} />
           </mesh>
-          {/* Right Stanchion */}
-          <mesh position={[0.85, -0.28, 0]} castShadow>
-            <boxGeometry args={[0.08, 0.50, 0.16]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.4} />
+
+          {/* 7 Vertical Grille Slats (from reference image) */}
+          {[-0.45, -0.30, -0.15, 0, 0.15, 0.30, 0.45].map((xOffset, i) => (
+            <mesh key={i} position={[xOffset, -0.06, 0.18]}>
+              <cylinderGeometry args={[0.024, 0.024, 0.22, 8]} />
+              <meshStandardMaterial color="#3f3f46" metalness={0.8} roughness={0.3} />
+            </mesh>
+          ))}
+
+          {/* Amber / Orange Rectangular Corner Marker Lights */}
+          <mesh position={[-0.88, 0.06, 0.18]}>
+            <boxGeometry args={[0.18, 0.10, 0.04]} />
+            <meshBasicMaterial color="#f59e0b" />
+          </mesh>
+          <mesh position={[0.88, 0.06, 0.18]}>
+            <boxGeometry args={[0.18, 0.10, 0.04]} />
+            <meshBasicMaterial color="#f59e0b" />
           </mesh>
         </group>
 
-        {/* Rear Diffuser Trim & Dual Exhaust */}
-        <mesh position={[0, 0.26, 2.12]}>
-          <boxGeometry args={[2.10, 0.16, 0.05]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.5} />
+        {/* 3. VIBRANT CRIMSON RED HOOD & FRONT NOSE */}
+        <group position={[0, 0.88, -1.22]}>
+          {/* Main Slanted Red Hood Slab */}
+          <mesh rotation={[0.22, 0, 0]} castShadow>
+            <boxGeometry args={[1.82, 0.32, 1.25]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.25} metalness={0.3} />
+          </mesh>
+
+          {/* Dark Charcoal Hood Side Chamfers */}
+          <mesh position={[-0.92, 0, 0]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.12, 0.28, 1.22]} />
+            <meshStandardMaterial color="#18181b" roughness={0.7} />
+          </mesh>
+          <mesh position={[0.92, 0, 0]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.12, 0.28, 1.22]} />
+            <meshStandardMaterial color="#18181b" roughness={0.7} />
+          </mesh>
+
+          {/* Hood Center Cowl Accent */}
+          <mesh position={[0, 0.17, -0.05]} rotation={[0.22, 0, 0]}>
+            <boxGeometry args={[0.65, 0.06, 0.85]} />
+            <meshStandardMaterial color="#18181b" roughness={0.6} />
+          </mesh>
+        </group>
+
+        {/* 4. HEAVY ANGULAR WHEEL ARCH FLARES (Front & Rear Fenders) */}
+        {/* Front Left Fender */}
+        <mesh position={[-1.12, 0.74, -1.25]} castShadow>
+          <boxGeometry args={[0.38, 0.44, 0.98]} />
+          <meshStandardMaterial color="#18181b" roughness={0.75} />
         </mesh>
-        <mesh position={[-0.45, 0.26, 2.15]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 0.08, 16]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.9} roughness={0.2} />
+        {/* Front Right Fender */}
+        <mesh position={[1.12, 0.74, -1.25]} castShadow>
+          <boxGeometry args={[0.38, 0.44, 0.98]} />
+          <meshStandardMaterial color="#18181b" roughness={0.75} />
         </mesh>
-        <mesh position={[0.45, 0.26, 2.15]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.08, 0.08, 0.08, 16]} />
-          <meshStandardMaterial color="#0284c7" metalness={0.9} roughness={0.2} />
+        {/* Rear Left Fender */}
+        <mesh position={[-1.12, 0.82, 1.25]} castShadow>
+          <boxGeometry args={[0.38, 0.52, 1.15]} />
+          <meshStandardMaterial color="#18181b" roughness={0.75} />
+        </mesh>
+        {/* Rear Right Fender */}
+        <mesh position={[1.12, 0.82, 1.25]} castShadow>
+          <boxGeometry args={[0.38, 0.52, 1.15]} />
+          <meshStandardMaterial color="#18181b" roughness={0.75} />
         </mesh>
 
-        {/* Crisp White LED Headlights */}
-        <mesh position={[-0.85, 0.56, -2.12]}>
-          <boxGeometry args={[0.42, 0.14, 0.05]} />
-          <meshBasicMaterial color="#e0f2fe" />
-        </mesh>
-        <mesh position={[0.85, 0.56, -2.12]}>
-          <boxGeometry args={[0.42, 0.14, 0.05]} />
-          <meshBasicMaterial color="#e0f2fe" />
+        {/* 5. OPEN COCKPIT & ANGULAR ROLL CAGE PILLARS */}
+        {/* Dark Interior Floor / Cockpit Tub */}
+        <mesh position={[0, 0.76, 0]}>
+          <boxGeometry args={[1.72, 0.28, 2.0]} />
+          <meshStandardMaterial color="#09090b" roughness={0.9} />
         </mesh>
 
-        {/* Minimalist Taillight Strip (Continuous Red Line) */}
-        <mesh position={[0, 0.60, 2.12]}>
-          <boxGeometry args={[2.15, 0.11, 0.05]} />
-          <meshBasicMaterial color="#ef4444" />
+        {/* A-Pillars (Angled Front Roll Cage Struts) */}
+        <mesh position={[-0.82, 1.34, -0.74]} rotation={[0.38, 0, -0.08]} castShadow>
+          <boxGeometry args={[0.12, 0.95, 0.12]} />
+          <meshStandardMaterial color="#18181b" roughness={0.6} metalness={0.7} />
+        </mesh>
+        <mesh position={[0.82, 1.34, -0.74]} rotation={[0.38, 0, 0.08]} castShadow>
+          <boxGeometry args={[0.12, 0.95, 0.12]} />
+          <meshStandardMaterial color="#18181b" roughness={0.6} metalness={0.7} />
+        </mesh>
+
+        {/* Top Brow Crossbar & Red LED Visor Light Strip */}
+        <mesh position={[0, 1.70, -0.56]}>
+          <boxGeometry args={[1.74, 0.14, 0.14]} />
+          <meshStandardMaterial color="#18181b" roughness={0.6} metalness={0.7} />
+        </mesh>
+        <mesh position={[0, 1.68, -0.48]}>
+          <boxGeometry args={[1.42, 0.04, 0.03]} />
+          <meshBasicMaterial color="#f43f5e" />
+        </mesh>
+
+        {/* Windshield Glass (Slightly Tinted Transparent) */}
+        <mesh position={[0, 1.32, -0.72]} rotation={[0.38, 0, 0]}>
+          <planeGeometry args={[1.56, 0.82]} />
+          <meshStandardMaterial
+            color="#3b0764"
+            roughness={0.1}
+            metalness={0.3}
+            transparent
+            opacity={0.4}
+            side={THREE.DoubleSide}
+          />
         </mesh>
 
         {/* ========================================================
-            WHEELS ASSEMBLY: INDEPENDENT STEER KNUCKLE + ROLLING AXLE
+            6. 🔮 THREE GLOWING PURPLE TRIANGULAR ENERGY PRISMS
+            Inside the cockpit, exactly matching the user's image!
+           ======================================================== */}
+        {/* Front-Left Glowing Triangular Prism */}
+        <GlowingTriangularPrism position={[-0.45, 1.08, -0.28]} rotation={[0, 0.15, 0]} />
+
+        {/* Front-Right Glowing Triangular Prism */}
+        <GlowingTriangularPrism position={[0.45, 1.08, -0.28]} rotation={[0, -0.15, 0]} />
+
+        {/* Center-Rear Glowing Triangular Prism */}
+        <GlowingTriangularPrism position={[0, 1.16, 0.22]} rotation={[0, Math.PI, 0]} scale={1.12} />
+
+        {/* 7. ARMORED RED DOORS WITH DUAL VERTICAL RECESSED WINDOW SLITS */}
+        {/* Left Side Door Panel */}
+        <group position={[-0.92, 1.25, 0.32]}>
+          {/* Main Red Door Armor */}
+          <mesh castShadow>
+            <boxGeometry args={[0.16, 0.88, 1.48]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.25} metalness={0.3} />
+          </mesh>
+          {/* Recessed Window Slit 1 (Front) */}
+          <mesh position={[-0.07, 0.12, -0.32]}>
+            <boxGeometry args={[0.04, 0.44, 0.24]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
+          </mesh>
+          <mesh position={[-0.08, 0.12, -0.32]}>
+            <planeGeometry args={[0.22, 0.42]} rotation={[0, -Math.PI / 2, 0]} />
+            <meshBasicMaterial color="#09090b" />
+          </mesh>
+          {/* Recessed Window Slit 2 (Rear) */}
+          <mesh position={[-0.07, 0.12, 0.32]}>
+            <boxGeometry args={[0.04, 0.44, 0.24]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
+          </mesh>
+          <mesh position={[-0.08, 0.12, 0.32]}>
+            <planeGeometry args={[0.22, 0.42]} rotation={[0, -Math.PI / 2, 0]} />
+            <meshBasicMaterial color="#09090b" />
+          </mesh>
+        </group>
+
+        {/* Right Side Door Panel */}
+        <group position={[0.92, 1.25, 0.32]}>
+          {/* Main Red Door Armor */}
+          <mesh castShadow>
+            <boxGeometry args={[0.16, 0.88, 1.48]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.25} metalness={0.3} />
+          </mesh>
+          {/* Recessed Window Slit 1 (Front) */}
+          <mesh position={[0.07, 0.12, -0.32]}>
+            <boxGeometry args={[0.04, 0.44, 0.24]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
+          </mesh>
+          <mesh position={[0.08, 0.12, -0.32]}>
+            <planeGeometry args={[0.22, 0.42]} rotation={[0, Math.PI / 2, 0]} />
+            <meshBasicMaterial color="#09090b" />
+          </mesh>
+          {/* Recessed Window Slit 2 (Rear) */}
+          <mesh position={[0.07, 0.12, 0.32]}>
+            <boxGeometry args={[0.04, 0.44, 0.24]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
+          </mesh>
+          <mesh position={[0.08, 0.12, 0.32]}>
+            <planeGeometry args={[0.22, 0.42]} rotation={[0, Math.PI / 2, 0]} />
+            <meshBasicMaterial color="#09090b" />
+          </mesh>
+        </group>
+
+        {/* 8. CRIMSON RED ROOF & 4 SQUARE ROOF LIGHT PODS */}
+        <group position={[0, 1.76, 0.35]}>
+          {/* Main Red Roof Plate */}
+          <mesh castShadow>
+            <boxGeometry args={[1.74, 0.12, 1.82]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.25} metalness={0.3} />
+          </mesh>
+          {/* Black Inset Sunroof Panel */}
+          <mesh position={[0, 0.07, -0.1]}>
+            <boxGeometry args={[1.28, 0.03, 1.15]} />
+            <meshStandardMaterial color="#18181b" roughness={0.7} />
+          </mesh>
+
+          {/* Transverse Crossbar for Roof Lights */}
+          <mesh position={[0, 0.12, -0.86]}>
+            <boxGeometry args={[1.68, 0.08, 0.12]} />
+            <meshStandardMaterial color="#18181b" roughness={0.6} metalness={0.8} />
+          </mesh>
+
+          {/* 4 Square Dark Light Pods / Roof Scoops (from image) */}
+          {[-0.54, -0.18, 0.18, 0.54].map((xOffset, i) => (
+            <group key={i} position={[xOffset, 0.24, -0.86]} rotation={[-0.15, 0, 0]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.24, 0.22, 0.24]} />
+                <meshStandardMaterial color="#18181b" roughness={0.65} metalness={0.4} />
+              </mesh>
+              {/* Front Dark Bevel Lens */}
+              <mesh position={[0, 0, -0.125]}>
+                <boxGeometry args={[0.18, 0.16, 0.02]} />
+                <meshStandardMaterial color="#27272a" roughness={0.3} />
+              </mesh>
+            </group>
+          ))}
+
+          {/* Rear Roof Spare / Cowl Accent */}
+          <mesh position={[0, 0.15, 0.72]}>
+            <cylinderGeometry args={[0.42, 0.42, 0.16, 16]} />
+            <meshStandardMaterial color="#18181b" roughness={0.8} />
+          </mesh>
+        </group>
+
+        {/* 9. REAR SECTION & HIGH-CLEARANCE TAILGATE */}
+        <group position={[0, 1.10, 1.35]}>
+          {/* Red Rear Tailgate Body */}
+          <mesh castShadow>
+            <boxGeometry args={[1.82, 0.72, 0.45]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.25} metalness={0.3} />
+          </mesh>
+          {/* Dark Rear Bumper */}
+          <mesh position={[0, -0.42, 0.12]}>
+            <boxGeometry args={[2.04, 0.28, 0.32]} />
+            <meshStandardMaterial color="#18181b" roughness={0.75} />
+          </mesh>
+          {/* Red LED Taillight Strips */}
+          <mesh position={[-0.72, -0.22, 0.24]}>
+            <boxGeometry args={[0.28, 0.10, 0.03]} />
+            <meshBasicMaterial color="#ef4444" />
+          </mesh>
+          <mesh position={[0.72, -0.22, 0.24]}>
+            <boxGeometry args={[0.28, 0.10, 0.03]} />
+            <meshBasicMaterial color="#ef4444" />
+          </mesh>
+        </group>
+
+        {/* ========================================================
+            10. MASSIVE ALL-TERRAIN MONSTER WHEELS ASSEMBLY
+            Huge knobby monster tires with deep tread & red rims
            ======================================================== */}
         {/* Front Left Wheel */}
-        <WheelAssembly
+        <MonsterWheelAssembly
           steerRef={frontLeftSteerRef}
           spinRef={frontLeftSpinRef}
-          position={[-1.28, 0.44, -1.30]}
+          position={[-1.38, 0.54, -1.30]}
           isRight={false}
-          isRear={false}
         />
         {/* Front Right Wheel */}
-        <WheelAssembly
+        <MonsterWheelAssembly
           steerRef={frontRightSteerRef}
           spinRef={frontRightSpinRef}
-          position={[1.28, 0.44, -1.30]}
+          position={[1.38, 0.54, -1.30]}
           isRight={true}
-          isRear={false}
         />
         {/* Rear Left Wheel */}
-        <WheelAssembly
+        <MonsterWheelAssembly
           spinRef={rearLeftSpinRef}
-          position={[-1.28, 0.48, 1.30]}
+          position={[-1.38, 0.54, 1.30]}
           isRight={false}
-          isRear={true}
         />
         {/* Rear Right Wheel */}
-        <WheelAssembly
+        <MonsterWheelAssembly
           spinRef={rearRightSpinRef}
-          position={[1.28, 0.48, 1.30]}
+          position={[1.38, 0.54, 1.30]}
           isRight={true}
-          isRear={true}
         />
       </group>
     </RigidBody>
   );
 }
 
-// High-Detail Sports Performance Wheel Component
-function WheelAssembly({
+// ========================================================
+// 🔮 GLOWING TRIANGULAR ENERGY PRISM MODULE
+// Exact 3D representation of the glowing violet prisms in the cockpit
+// ========================================================
+function GlowingTriangularPrism({ position, rotation = [0, 0, 0], scale = 1 }) {
+  return (
+    <group position={position} rotation={rotation} scale={scale}>
+      {/* Outer Glowing Triangular Prism Faces */}
+      <mesh castShadow>
+        <cylinderGeometry args={[0.18, 0.18, 0.32, 3]} />
+        <meshBasicMaterial color="#f0abfc" />
+      </mesh>
+
+      {/* Triangular Glowing Border Outline Rim */}
+      <mesh position={[0, 0.165, 0]}>
+        <cylinderGeometry args={[0.19, 0.19, 0.02, 3]} />
+        <meshStandardMaterial color="#c084fc" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, -0.165, 0]}>
+        <cylinderGeometry args={[0.19, 0.19, 0.02, 3]} />
+        <meshStandardMaterial color="#c084fc" metalness={0.9} roughness={0.1} />
+      </mesh>
+
+      {/* Brilliant White-Violet Core Glow */}
+      <mesh>
+        <cylinderGeometry args={[0.10, 0.10, 0.28, 3]} />
+        <meshBasicMaterial color="#ffffff" />
+      </mesh>
+
+      {/* Localized Radiant Violet Point Light */}
+      <pointLight color="#d946ef" intensity={2.5} distance={2.5} />
+    </group>
+  );
+}
+
+// ========================================================
+// 🛞 CHUNKY ALL-TERRAIN MONSTER TIRE & RED CONCAVE RIM
+// True to the user reference: Wide monster stance, deep tread lugs, red rim
+// ========================================================
+function MonsterWheelAssembly({
   steerRef,
   spinRef,
   position,
   isRight = false,
-  isRear = false,
 }) {
-  const radius = isRear ? 0.48 : 0.44;
-  const width = 0.34;
-  const rimRadius = radius * 0.66;
-  const sideSign = isRight ? 1 : -1; // -1 for left wheel (outwards -X), +1 for right wheel (outwards +X)
+  const radius = 0.54;
+  const width = 0.48;
+  const rimRadius = radius * 0.58;
+  const sideSign = isRight ? 1 : -1;
 
   return (
     <group position={position}>
-      {/* Steering Knuckle Group (Swivels with front steering on Y axis) */}
+      {/* Steering Knuckle Group (Swivels Y) */}
       <group ref={steerRef}>
-        {/* Stationary Performance Brake Caliper (Mounts to knuckle, DOES NOT spin with wheel) */}
-        <group position={[sideSign * 0.08, radius * 0.44, -0.04]}>
-          <mesh castShadow>
-            <boxGeometry args={[0.07, radius * 0.34, 0.18]} />
-            <meshStandardMaterial color="#0284c7" metalness={0.7} roughness={0.25} />
-          </mesh>
-          {/* Cyan Performance Caliper Accent */}
-          <mesh position={[sideSign * 0.038, 0, 0]}>
-            <boxGeometry args={[0.012, radius * 0.22, 0.10]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
-        </group>
+        {/* Heavy-Duty Suspension Spindle Arm */}
+        <mesh position={[-sideSign * 0.08, 0, 0]}>
+          <boxGeometry args={[0.14, 0.22, 0.18]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.6} />
+        </mesh>
 
-        {/* Wheel Hub & Tire Spin Group (Rotates on X axis around axle) */}
+        {/* Wheel Hub & Tire Spin Group (Rotates X) */}
         <group ref={spinRef}>
-          {/* 1. Main Rubber Tire (32-segment smooth geometry) */}
+          {/* 1. Main Mud/Desert All-Terrain Monster Rubber Tire */}
           <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-            <cylinderGeometry args={[radius, radius, width * 0.80, 32]} />
-            <meshStandardMaterial color="#111827" roughness={0.92} metalness={0.05} />
+            <cylinderGeometry args={[radius, radius, width * 0.88, 24]} />
+            <meshStandardMaterial color="#292524" roughness={0.92} metalness={0.05} />
           </mesh>
 
-          {/* Outer Tire Rounded Shoulder */}
-          <mesh rotation={[0, 0, Math.PI / 2]} position={[sideSign * width * 0.44, 0, 0]}>
-            <cylinderGeometry
-              args={[
-                isRight ? radius * 0.94 : radius,
-                isRight ? radius : radius * 0.94,
-                width * 0.12,
-                32,
-              ]}
-            />
-            <meshStandardMaterial color="#111827" roughness={0.92} metalness={0.05} />
-          </mesh>
+          {/* Deep Knobby Off-Road Tread Lugs Arrayed around the Tire */}
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => {
+            const angle = (i * Math.PI * 2) / 12;
+            return (
+              <group key={i} rotation={[angle, 0, 0]}>
+                <mesh position={[0, radius * 0.98, 0]} rotation={[0, 0, (i % 2 === 0 ? 0.15 : -0.15)]} castShadow>
+                  <boxGeometry args={[width * 0.82, 0.08, 0.14]} />
+                  <meshStandardMaterial color="#1c1917" roughness={0.95} />
+                </mesh>
+              </group>
+            );
+          })}
 
-          {/* Inner Tire Rounded Shoulder */}
-          <mesh rotation={[0, 0, Math.PI / 2]} position={[-sideSign * width * 0.44, 0, 0]}>
-            <cylinderGeometry
-              args={[
-                isRight ? radius : radius * 0.94,
-                isRight ? radius * 0.94 : radius,
-                width * 0.12,
-                32,
-              ]}
-            />
-            <meshStandardMaterial color="#111827" roughness={0.92} metalness={0.05} />
-          </mesh>
-
-          {/* Sidewall Detail Ring */}
+          {/* Outer Rounded Sidewall Ring */}
           <mesh
             rotation={[0, isRight ? Math.PI / 2 : -Math.PI / 2, 0]}
-            position={[sideSign * width * 0.505, 0, 0]}
+            position={[sideSign * width * 0.44, 0, 0]}
           >
-            <ringGeometry args={[rimRadius * 1.02, radius * 0.94, 32]} />
-            <meshStandardMaterial color="#1f2937" roughness={0.88} />
+            <ringGeometry args={[rimRadius * 0.98, radius * 0.96, 24]} />
+            <meshStandardMaterial color="#292524" roughness={0.9} />
           </mesh>
 
-          {/* 2. Deep-Dish Alloy Rim Barrel */}
-          <mesh rotation={[0, 0, Math.PI / 2]} position={[sideSign * -0.01, 0, 0]}>
-            <cylinderGeometry args={[rimRadius, rimRadius * 0.92, width * 0.86, 32]} />
-            <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.25} />
-          </mesh>
-
-          {/* Chrome Polished Outer Rim Lip */}
+          {/* 2. BRIGHT CRIMSON RED DEEP-DISH CONCAVE RIM (Matching Car Body) */}
           <mesh
             rotation={[0, isRight ? Math.PI / 2 : -Math.PI / 2, 0]}
-            position={[sideSign * width * 0.48, 0, 0]}
+            position={[sideSign * width * 0.38, 0, 0]}
           >
-            <ringGeometry args={[rimRadius * 0.94, rimRadius * 1.03, 32]} />
+            <ringGeometry args={[rimRadius * 0.32, rimRadius * 1.02, 24]} />
+            <meshStandardMaterial color="#dc2626" metalness={0.5} roughness={0.25} />
+          </mesh>
+
+          {/* Outer Red Lip Chamfer */}
+          <mesh
+            rotation={[0, 0, Math.PI / 2]}
+            position={[sideSign * width * 0.40, 0, 0]}
+          >
+            <cylinderGeometry args={[rimRadius * 1.02, rimRadius * 0.96, 0.06, 24]} />
+            <meshStandardMaterial color="#dc2626" metalness={0.5} roughness={0.25} />
+          </mesh>
+
+          {/* Dark Charcoal Center Hub Cap */}
+          <mesh
+            rotation={[0, 0, Math.PI / 2]}
+            position={[sideSign * width * 0.42, 0, 0]}
+          >
+            <cylinderGeometry args={[rimRadius * 0.32, rimRadius * 0.32, 0.08, 16]} />
+            <meshStandardMaterial color="#18181b" metalness={0.8} roughness={0.3} />
+          </mesh>
+
+          {/* Chrome Center Nut */}
+          <mesh
+            rotation={[0, 0, Math.PI / 2]}
+            position={[sideSign * width * 0.47, 0, 0]}
+          >
+            <cylinderGeometry args={[0.06, 0.06, 0.04, 6]} />
             <meshStandardMaterial color="#f8fafc" metalness={0.95} roughness={0.1} />
           </mesh>
-
-          {/* 3. Steel Brake Rotor Disc (Spins with wheel) */}
-          <mesh rotation={[0, 0, Math.PI / 2]} position={[sideSign * 0.07, 0, 0]}>
-            <cylinderGeometry args={[radius * 0.58, radius * 0.58, 0.02, 32]} />
-            <meshStandardMaterial color="#94a3b8" metalness={0.92} roughness={0.22} />
-          </mesh>
-          <mesh
-            rotation={[0, isRight ? Math.PI / 2 : -Math.PI / 2, 0]}
-            position={[sideSign * 0.082, 0, 0]}
-          >
-            <ringGeometry args={[radius * 0.28, radius * 0.57, 32]} />
-            <meshStandardMaterial color="#64748b" metalness={0.95} roughness={0.25} />
-          </mesh>
-
-          {/* 4. Sculpted 5-Spoke Dual-Blade Alloy Rim Face */}
-          <group
-            position={[sideSign * width * 0.44, 0, 0]}
-            rotation={[0, isRight ? Math.PI / 2 : -Math.PI / 2, 0]}
-          >
-            {[0, 1, 2, 3, 4].map((i) => {
-              const angle = (i * Math.PI * 2) / 5;
-              return (
-                <group key={i} rotation={[0, 0, angle]}>
-                  {/* Left Blade */}
-                  <mesh position={[-0.022, rimRadius * 0.52, 0]} rotation={[0, 0, 0.08]}>
-                    <boxGeometry args={[0.032, rimRadius * 0.78, 0.035]} />
-                    <meshStandardMaterial color="#f1f5f9" metalness={0.92} roughness={0.15} />
-                  </mesh>
-                  {/* Right Blade */}
-                  <mesh position={[0.022, rimRadius * 0.52, 0]} rotation={[0, 0, -0.08]}>
-                    <boxGeometry args={[0.032, rimRadius * 0.78, 0.035]} />
-                    <meshStandardMaterial color="#f1f5f9" metalness={0.92} roughness={0.15} />
-                  </mesh>
-                </group>
-              );
-            })}
-
-            {/* Center Wheel Hub */}
-            <mesh position={[0, 0, -0.015]}>
-              <cylinderGeometry
-                args={[rimRadius * 0.28, rimRadius * 0.28, 0.05, 24]}
-                rotation={[Math.PI / 2, 0, 0]}
-              />
-              <meshStandardMaterial color="#0f172a" metalness={0.8} roughness={0.3} />
-            </mesh>
-            {/* Center Cap with Electric Cyan Ring */}
-            <mesh position={[0, 0, 0.02]}>
-              <cylinderGeometry
-                args={[rimRadius * 0.16, rimRadius * 0.16, 0.025, 16]}
-                rotation={[Math.PI / 2, 0, 0]}
-              />
-              <meshStandardMaterial color="#0284c7" metalness={0.8} roughness={0.2} />
-            </mesh>
-            {/* 5 Precision Chrome Hex Lug Nuts */}
-            {[0, 1, 2, 3, 4].map((i) => {
-              const angle = (i * Math.PI * 2) / 5;
-              const dist = rimRadius * 0.22;
-              return (
-                <mesh
-                  key={i}
-                  position={[Math.sin(angle) * dist, Math.cos(angle) * dist, 0.02]}
-                  rotation={[Math.PI / 2, 0, 0]}
-                >
-                  <cylinderGeometry args={[0.016, 0.016, 0.03, 6]} />
-                  <meshStandardMaterial color="#ffffff" metalness={0.98} roughness={0.1} />
-                </mesh>
-              );
-            })}
-          </group>
         </group>
       </group>
     </group>
