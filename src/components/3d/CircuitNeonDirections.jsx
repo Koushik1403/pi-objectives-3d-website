@@ -42,11 +42,11 @@ const STAGE_ROUTES = {
     color: '#00ffff',
     glowColor: '#0284c7',
     chevrons: [
-      { pos: [-45.5, 0.22, -27.2], angle: 0.32 * Math.PI, scale: 1.4 },
-      { pos: [-42.0, 0.22, -23.8], angle: 0.27 * Math.PI, scale: 1.4 },
-      { pos: [-38.2, 0.22, -20.2], angle: 0.23 * Math.PI, scale: 1.45 },
-      { pos: [-34.5, 0.22, -17.0], angle: 0.20 * Math.PI, scale: 1.45 },
-      { pos: [-31.2, 0.22, -14.6], angle: 0.18 * Math.PI, scale: 1.5 },
+      { pos: [-45.5, 0.22, -27.2], angle: -0.75 * Math.PI, scale: 1.4 },
+      { pos: [-42.0, 0.22, -23.8], angle: -0.74 * Math.PI, scale: 1.4 },
+      { pos: [-38.2, 0.22, -20.2], angle: -0.72 * Math.PI, scale: 1.45 },
+      { pos: [-34.5, 0.22, -17.0], angle: -0.70 * Math.PI, scale: 1.45 },
+      { pos: [-31.2, 0.22, -14.6], angle: -0.65 * Math.PI, scale: 1.5 },
     ],
   },
 

@@ -67,6 +67,23 @@ export function usePortfolioStore(selector = (s) => s) {
 let lastTelemetryTime = 0;
 
 // Helper actions
+const CHECKPOINT_ALIGNMENTS = {
+  // Exiting CP1 -> Align straight towards CP2 [-48, 0, -30]
+  2: { x: -33.5, y: 0.8, z: -38.5, heading: 2.10, name: 'PI Objective 2' },
+
+  // Exiting CP2 -> Align straight towards CP3 [-30, 0, -14]
+  3: { x: -45.0, y: 0.8, z: -27.0, heading: -2.29, name: 'PI Objective 3' },
+
+  // Exiting CP3 -> Align straight towards CP4 [-12, 0, -30]
+  4: { x: -27.0, y: 0.8, z: -17.0, heading: -0.86, name: 'PI Objective 4' },
+
+  // Exiting CP4 -> Align straight West into CP5 Finish Gate [-30, 0, -30]
+  5: { x: -16.0, y: 0.8, z: -30.0, heading: Math.PI / 2, name: 'PI Objective 5' },
+
+  // Exiting CP5 -> Align straight East along Cross Boulevard towards Team Land [32, 0, -30]
+  6: { x: -22.0, y: 0.8, z: -30.0, heading: -Math.PI / 2, name: 'Our Team Land' },
+};
+
 export const portfolioActions = {
   openWelcome: () => {
     setPortfolioState({ activeModal: 'welcome' });
@@ -75,15 +92,18 @@ export const portfolioActions = {
     setPortfolioState({ activeModal: 'map' });
   },
   closeModal: () => {
-    // If closing a checkpoint modal, advance to the next objective
+    // If closing a checkpoint modal, advance to the next objective and align car straight towards it
     if (state.activeModal === 'checkpoint' && state.activeCheckpoint) {
       const curIdx = state.activeCheckpoint.index;
       const nextIdx = curIdx < 5 ? curIdx + 1 : 6;
+      const alignment = CHECKPOINT_ALIGNMENTS[nextIdx];
       setPortfolioState({
         activeModal: null,
         activeCheckpoint: null,
         targetCheckpointIndex: nextIdx,
         objectivesCompleted: curIdx === 5 ? true : state.objectivesCompleted,
+        teleportTarget: alignment,
+        isTeleporting: true,
       });
     } else {
       setPortfolioState({ activeModal: null });
@@ -91,6 +111,9 @@ export const portfolioActions = {
   },
   completeCurrentAndAdvance: () => {
     const curIdx = state.activeCheckpoint ? state.activeCheckpoint.index : state.targetCheckpointIndex;
+    const nextIdx = curIdx < 5 ? curIdx + 1 : 6;
+    const alignment = CHECKPOINT_ALIGNMENTS[nextIdx];
+
     if (curIdx >= 5) {
       // Completed Objective 5! Play victory chime and lead to Team Land
       if (state.audioEnabled) sounds.celebration();
@@ -100,14 +123,17 @@ export const portfolioActions = {
         targetCheckpointIndex: 6,
         objectivesCompleted: true,
         currentLand: 'Our Team Land',
-        teleportTarget: { x: 32, y: 0.8, z: -20, heading: 0, name: 'Our Team Land' },
+        teleportTarget: alignment || { x: -22.0, y: 0.8, z: -30.0, heading: -Math.PI / 2, name: 'Our Team Land' },
         isTeleporting: true,
       });
     } else {
+      if (state.audioEnabled) sounds.click();
       setPortfolioState({
         activeModal: null,
         activeCheckpoint: null,
-        targetCheckpointIndex: curIdx + 1,
+        targetCheckpointIndex: nextIdx,
+        teleportTarget: alignment,
+        isTeleporting: true,
       });
     }
   },
