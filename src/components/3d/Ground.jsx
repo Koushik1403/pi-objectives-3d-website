@@ -149,13 +149,6 @@ export function Ground() {
         <DashedRoadLine length={28} color="#ffffff" />
       </group>
 
-      {/* ========================================================
-          5. FUTURISTIC STREETLAMPS ALONG HIGHWAYS
-         ======================================================== */}
-      <StreetLamp position={[-8, 0, -8]} rotation={[0, Math.PI / 4, 0]} color="#0284c7" />
-      <StreetLamp position={[-16, 0, -18]} rotation={[0, Math.PI / 4, 0]} color="#0284c7" />
-      <StreetLamp position={[8, 0, -8]} rotation={[0, -Math.PI / 4, 0]} color="#f97316" />
-      <StreetLamp position={[16, 0, -18]} rotation={[0, -Math.PI / 4, 0]} color="#f97316" />
 
       {/* ========================================================
           6. STADIUM PERIMETER BARRIER WALLS (CLEAN WHITE CONCRETE)
@@ -219,33 +212,6 @@ function KerbRing({ radius = 11.5, width = 0.8, count = 32 }) {
   );
 }
 
-// Cyber Streetlamp Component with Glowing Fixture & Light Pool
-function StreetLamp({ position, rotation = [0, 0, 0], color = '#0284c7' }) {
-  return (
-    <group position={position} rotation={rotation}>
-      {/* Curved Pole (Clean Silver) */}
-      <mesh position={[0, 2.5, 0]} castShadow>
-        <cylinderGeometry args={[0.07, 0.1, 5.0, 8]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.6} roughness={0.3} />
-      </mesh>
-      {/* Horizontal Arm */}
-      <mesh position={[0.6, 4.8, 0]} rotation={[0, 0, Math.PI / 6]} castShadow>
-        <boxGeometry args={[1.4, 0.08, 0.08]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.6} />
-      </mesh>
-      {/* Light Head */}
-      <mesh position={[1.2, 4.5, 0]}>
-        <boxGeometry args={[0.4, 0.1, 0.25]} />
-        <meshBasicMaterial color={color} />
-      </mesh>
-      {/* Glowing Light Pool on Road */}
-      <mesh position={[1.2, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[2.5, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={0.15} />
-      </mesh>
-    </group>
-  );
-}
 
 // Stadium Perimeter Barrier Wall (Clean White Concrete with Hazard Striping)
 function ArenaBarrierWall({ position, rotation = [0, 0, 0], length = 120 }) {

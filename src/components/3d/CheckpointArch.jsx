@@ -316,7 +316,7 @@ export function CheckpointArch({
           anchorY="middle"
           letterSpacing={0.1}
         >
-          {`PI OBJECTIVE ${index} OF 5 • TEAM ABU Q4 2026`}
+          {`PI OBJECTIVE ${index} OF 3 • TEAM ABU Q4 2026`}
         </Text>
         {/* Main Title Banner */}
         <Text

@@ -11,6 +11,7 @@ export function HUD() {
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
   const activeObjectiveIndex = usePortfolioStore((s) => s.activeObjectiveIndex);
   const objectivesCompleted = usePortfolioStore((s) => s.objectivesCompleted);
+  const teamPhotoOpened = usePortfolioStore((s) => s.teamPhotoOpened);
 
   const handleMapToggle = () => {
     if (audioEnabled) sounds.click();
@@ -73,42 +74,60 @@ export function HUD() {
           </button>
         </div>
 
-        {/* Center: Real-Time Dynamic Guidance Indicator (Removed completely after objectives are completed) */}
-        {!objectivesCompleted && targetCheckpointIndex <= 5 && (
+        {/* Center: Real-Time Dynamic Guidance Indicator */}
+        {!objectivesCompleted && targetCheckpointIndex <= 3 && (
           <div className="hud-group" style={{ pointerEvents: 'auto' }}>
             {targetCheckpointIndex === 1 ? (
               <div className="hud-guide-pill highlight">
                 <Navigation size={15} color="#0284c7" />
                 <span className="guide-text">TAKE LEFT ➔ PI OBJECTIVE 1</span>
-                <span className="guide-progress">0/5</span>
+                <span className="guide-progress">0/3</span>
               </div>
             ) : targetCheckpointIndex === 2 ? (
               <div className="hud-guide-pill highlight">
                 <Navigation size={15} color="#0284c7" />
                 <span className="guide-text">TURN RIGHT ➔ OBJECTIVE 2</span>
-                <span className="guide-progress">1/5</span>
-              </div>
-            ) : targetCheckpointIndex === 3 ? (
-              <div className="hud-guide-pill highlight">
-                <Navigation size={15} color="#0284c7" />
-                <span className="guide-text">TURN LEFT ➔ OBJECTIVE 3</span>
-                <span className="guide-progress">2/5</span>
-              </div>
-            ) : targetCheckpointIndex === 4 ? (
-              <div className="hud-guide-pill highlight">
-                <Navigation size={15} color="#0284c7" />
-                <span className="guide-text">TURN LEFT ➔ OBJECTIVE 4</span>
-                <span className="guide-progress">3/5</span>
+                <span className="guide-progress">1/3</span>
               </div>
             ) : (
               <div className="hud-guide-pill highlight" style={{ borderColor: '#f59e0b', background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)' }}>
                 <Navigation size={15} color="#d97706" />
-                <span className="guide-text">TURN LEFT ➔ FINAL OBJECTIVE 5</span>
+                <span className="guide-text">TURN LEFT ➔ FINAL OBJECTIVE 3</span>
                 <span className="guide-progress" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#d97706' }}>
-                  4/5
+                  2/3
                 </span>
               </div>
             )}
+          </div>
+        )}
+
+        {objectivesCompleted && (
+          <div className="hud-group" style={{ pointerEvents: 'auto' }}>
+            <div
+              className="hud-guide-pill highlight"
+              style={{
+                borderColor: teamPhotoOpened ? '#10b981' : '#f97316',
+                background: teamPhotoOpened
+                  ? 'linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%)'
+                  : 'linear-gradient(135deg, #ffffff 0%, #fff7ed 100%)',
+              }}
+            >
+              <Navigation size={15} color={teamPhotoOpened ? '#059669' : '#ea580c'} />
+              <span className="guide-text">
+                {teamPhotoOpened
+                  ? '🏆 TEAM ABU Q4 2026 UNLOCKED'
+                  : 'DRIVE EAST ➔ OUR TEAM LAND & UNWRAP PHOTO'}
+              </span>
+              <span
+                className="guide-progress"
+                style={{
+                  background: teamPhotoOpened ? 'rgba(16, 185, 129, 0.15)' : 'rgba(249, 115, 22, 0.15)',
+                  color: teamPhotoOpened ? '#059669' : '#ea580c',
+                }}
+              >
+                {teamPhotoOpened ? '3/3' : '➔ 📸'}
+              </span>
+            </div>
           </div>
         )}
 
@@ -172,7 +191,7 @@ export function HUD() {
           </div>
         </div>
       </div>
-      {/* Bottom Center: Interactive Auto-Drive to Next Objective Button */}
+      {/* Bottom Center: Interactive Auto-Drive to Next / Prev Objective Buttons */}
       {activeObjectiveIndex && (
         <div
           style={{
@@ -182,11 +201,44 @@ export function HUD() {
             transform: 'translateX(-50%)',
             zIndex: 60,
             pointerEvents: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
           }}
         >
+          {activeObjectiveIndex > 1 && (
+            <button
+              onClick={() => {
+                const prevIdx = activeObjectiveIndex - 1;
+                portfolioActions.goToPreviousObjective(prevIdx);
+              }}
+              style={{
+                padding: '14px 22px',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, #334155 0%, #1e293b 100%)',
+                color: '#f8fafc',
+                border: '2px solid #94a3b8',
+                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.45), 0 0 12px rgba(148, 163, 184, 0.3)',
+                fontWeight: 800,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                letterSpacing: '0.04em',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+              onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            >
+              <span>⬅️</span>
+              <span>PREV ({activeObjectiveIndex - 1})</span>
+            </button>
+          )}
+
           <button
             onClick={() => {
-              const nextIdx = activeObjectiveIndex < 5 ? activeObjectiveIndex + 1 : 6;
+              const nextIdx = activeObjectiveIndex < 3 ? activeObjectiveIndex + 1 : 4;
               portfolioActions.advanceToNextObjective(nextIdx);
             }}
             style={{
@@ -208,11 +260,11 @@ export function HUD() {
             onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
             onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
-            <span style={{ fontSize: '1.2rem' }}>🏎️</span>
-            <span>
-              {activeObjectiveIndex < 5
+            <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>🏎️</span>
+            <span style={{ whiteSpace: 'nowrap' }}>
+              {activeObjectiveIndex < 3
                 ? `DRIVE TO OBJECTIVE ${activeObjectiveIndex + 1} ➔`
-                : '🏆 ALL OBJECTIVES UNLOCKED! GO TO TEAM LAND ➔'}
+                : '🏆 ALL OBJECTIVES UNLOCKED! DRIVE TO TEAM LAND ➔ 🏎️'}
             </span>
           </button>
         </div>

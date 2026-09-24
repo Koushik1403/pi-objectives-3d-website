@@ -11,51 +11,37 @@ const OBJECTIVES_DATA = [
     index: 1,
     position: [-30, 0, -42],
     rotation: [0, 0, 0], // Facing North (approaching car driving South)
-    title: 'Wallet Transaction History',
-    sentence: 'Developed core wallet and now delivering real-time transaction history with sub-50ms query speeds & instant status tracking.',
+    title: 'Xtra-Wallet go to alpha Hypercare',
+    sentence: 'MVP Alpha release: Onboarding, Payment screens, Dynamic SDK ID, Switch device, Offboarding and maaltijdcheques, live for the Alpha users in the canteens.',
+    sentence2: 'Hypercare: daily follow-up, incident fixes and weekly report',
     businessValue: 9,
+    status: 'COMMITTED',
     wrapColor: '#0284c7', // Royal Sapphire
     ribbonColor: '#fbbf24', // Gold
   },
   {
     index: 2,
     position: [-48, 0, -30],
-    rotation: [0, (3 * Math.PI) / 4, 0], // Rotated to face East-North-East directly toward incoming car from CP1!
-    title: 'Autonomous AI Agent Pipeline',
-    sentence: 'Deploying self-healing coding assistant agents and real-time LLM inference pipelines for automated regression triage.',
-    businessValue: 8,
-    wrapColor: '#059669', // Emerald Green
-    ribbonColor: '#fde047', // Sunshine Gold
+    rotation: [0, (3 * Math.PI) / 4, 0], 
+    title: 'Xtra-Wallet go to beta Hypercare',
+    sentence: 'Alpha fixes: bugs and issues from the Alpha resolved and included in the Beta release',
+    sentence2: 'Hypercare: daily follow-up, incident fixes and weekly report',
+    businessValue: 10,
+    status: 'COMMITTED',
+    wrapColor: '#059669', 
+    ribbonColor: '#fde047',
   },
   {
     index: 3,
     position: [-30, 0, -14],
     rotation: [0, (-3 * Math.PI) / 4, 0], // Rotated to face West-South-West directly toward incoming car from CP2!
-    title: '60 FPS Interactive 3D Web Platform',
-    sentence: 'Delivering real-time 3D web simulation with dynamic Rapier physics, low memory footprint, and stable 60 FPS.',
-    businessValue: 9,
-    wrapColor: '#9333ea', // Cyber Violet
-    ribbonColor: '#00f5ff', // Neon Cyan
-  },
-  {
-    index: 4,
-    position: [-12, 0, -30],
-    rotation: [0, -Math.PI / 4, 0], // Rotated to face South-West directly toward incoming car from CP3!
-    title: 'Micro-Frontend Design System',
-    sentence: 'Unifying 8 enterprise product dashboards into an accessible tokenized modular design system with WCAG AAA compliance.',
+    title: 'Xtra-Wallet: Payment History',
+    sentence: 'Show payment history of all the payments done by XTRA(Wallet + CG-SDD)',
+    sentence2: '',
     businessValue: 7,
-    wrapColor: '#ea580c', // Sunset Orange
-    ribbonColor: '#ffffff', // Crisp White
-  },
-  {
-    index: 5,
-    position: [-30, 0, -30],
-    rotation: [0, Math.PI / 2, 0], // Rotated to face East straight at incoming car from CP4!
-    title: 'Zero-Downtime Deployment & Observability',
-    sentence: 'Implementing progressive canary releases with automated Prometheus telemetry rollback triggers and zero downtime.',
-    businessValue: 10,
-    wrapColor: '#d97706', // Championship Gold
-    ribbonColor: '#dc2626', // Royal Ruby
+    status: 'COMMITTED',
+    wrapColor: '#9333ea', 
+    ribbonColor: '#00f5ff', 
   },
 ];
 
@@ -133,7 +119,9 @@ export function PIObjectivesLand() {
             rotation={obj.rotation}
             title={obj.title}
             sentence={obj.sentence}
+            sentence2={obj.sentence2}
             businessValue={obj.businessValue}
+            status={obj.status}
             wrapColor={obj.wrapColor}
             ribbonColor={obj.ribbonColor}
           />

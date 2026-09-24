@@ -6,37 +6,25 @@ import { sounds } from '../../audio/soundEffects';
 const ALL_OBJECTIVES = [
   {
     index: 1,
-    title: 'Wallet Transaction History',
-    sentence: 'Deliver real-time Wallet Transaction History with instant search, categorization, and streaming notifications.',
-    subtitle: 'Phase 1 Core Wallet Built ➔ Phase 2 Real-Time History & Analytics',
+    title: 'Xtra-Wallet go to alpha Hypercare',
+    sentence: 'MVP Alpha release: Onboarding, Payment screens, Dynamic SDK ID, Switch device, Offboarding and maaltijdcheques, live for the Alpha users in the canteens.',
+    sentence2: 'Hypercare: daily follow-up, incident fixes and weekly report',
+    subtitle: 'Alpha Release ➔ Daily Incident Triage & Operational Stability',
     defaultBv: 9,
   },
   {
     index: 2,
-    title: 'Autonomous AI Agent Pipeline',
-    sentence: 'Deploy autonomous coding and triage agents to automate regression testing, PR verification, and policy auditing.',
-    subtitle: 'Self-Healing Coding Agents ➔ Sub-100ms LLM Streaming Inference',
+    title: 'Xtra-Wallet go to beta Hypercare',
+    sentence: 'Alpha fixes: bugs and issues from the Alpha resolved and included in the Beta release',
+    sentence2: 'Hypercare: daily follow-up, incident fixes and weekly report',
+    subtitle: 'Beta Promotion ➔ Resolved Alpha Issues & Continuous Monitoring',
     defaultBv: 8,
   },
   {
     index: 3,
-    title: '60 FPS Interactive 3D Web Platform',
-    sentence: 'Deliver a lightweight sub-500KB real-time 3D simulation with dynamic Rapier physics and stable 60 FPS performance.',
-    subtitle: 'Browser-Based 3D Engine ➔ GPU Batching & Zero Mobile Lag',
-    defaultBv: 8,
-  },
-  {
-    index: 4,
-    title: 'Micro-Frontend Design System',
-    sentence: 'Unify 8 enterprise product dashboards into a tokenized modular design system with WCAG AAA accessibility compliance.',
-    subtitle: 'Unified Tokenized Components ➔ Accelerate Feature Velocity by 3.5x',
-    defaultBv: 7,
-  },
-  {
-    index: 5,
-    title: 'Zero-Downtime Deployment & Observability',
-    sentence: 'Implement automated progressive canary releases with real-time Prometheus telemetry and sub-3-minute rollbacks.',
-    subtitle: '25+ Daily Deployments ➔ End-to-End Tracing Across 120+ Microservices',
+    title: 'Xtra-Wallet: Payment History',
+    sentence: 'Show payment history of all the payments done by XTRA(Wallet + CG-SDD)',
+    subtitle: 'Full Ledger Analytics ➔ Complete Payment Audit & History',
     defaultBv: 9,
   },
 ];
@@ -48,7 +36,7 @@ export function CheckpointModal() {
 
   // Unconditional state hooks to guarantee zero React rules-of-hooks violations
   const [isOpen, setIsOpen] = useState(false);
-  const [scores, setScores] = useState({ 1: 9, 2: 8, 3: 8, 4: 7, 5: 9 });
+  const [scores, setScores] = useState({ 1: 9, 2: 8, 3: 9 });
 
   // Trigger smooth wallet unfold animation & audio clasp whenever modal opens or checkpoint changes
   useEffect(() => {
@@ -238,7 +226,24 @@ export function CheckpointModal() {
                       color: '#fbbf24',
                     }}
                   >
-                    PI OBJECTIVE {currentIndex} OF 5
+                    PI OBJECTIVE {currentIndex} OF 3
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      color: '#10b981',
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.4)',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      fontWeight: 800,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                    COMMITTED
                   </span>
                   {currentIndex === 1 && (
                     <span
@@ -271,23 +276,46 @@ export function CheckpointModal() {
                   {currentObj.title}
                 </h2>
 
-                {/* EXACTLY ONE SENTENCE OBJECTIVE */}
-                <p
+                {/* OBJECTIVE DESCRIPTION */}
+                <div
                   style={{
-                    fontSize: '1.15rem',
-                    fontWeight: 500,
-                    lineHeight: 1.6,
-                    color: '#e2e8f0',
-                    margin: 0,
                     background: 'rgba(255, 255, 255, 0.04)',
                     padding: '16px 20px',
                     borderRadius: '14px',
                     border: '1px solid rgba(255, 255, 255, 0.08)',
                     boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
                   }}
                 >
-                  "{currentObj.sentence}"
-                </p>
+                  <p
+                    style={{
+                      fontSize: '1.05rem',
+                      fontWeight: 500,
+                      lineHeight: 1.55,
+                      color: '#e2e8f0',
+                      margin: 0,
+                    }}
+                  >
+                    "{currentObj.sentence}"
+                  </p>
+                  {currentObj.sentence2 && (
+                    <p
+                      style={{
+                        fontSize: '0.98rem',
+                        fontWeight: 600,
+                        lineHeight: 1.5,
+                        color: '#38bdf8',
+                        margin: 0,
+                        paddingTop: '8px',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                      }}
+                    >
+                      📌 {currentObj.sentence2}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Context Footnote */}
@@ -496,15 +524,15 @@ export function CheckpointModal() {
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
               <span>
-                {currentIndex < 5
+                {currentIndex < 3
                   ? `Drive to Objective ${currentIndex + 1} ➔ 🏎️`
-                  : 'Complete PI Tour & Meet Team Abu ➔ 🏆'}
+                  : 'Drive to Team Photo ➔ 📸'}
               </span>
               <ChevronRight size={17} />
             </button>
 
             <button
-              disabled={currentIndex === 5}
+              disabled={currentIndex === 3}
               onClick={() => navigateTo(currentIndex + 1)}
               style={{
                 display: 'flex',
@@ -514,10 +542,10 @@ export function CheckpointModal() {
                 borderRadius: '10px',
                 background: 'rgba(255, 255, 255, 0.06)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: currentIndex === 5 ? '#52525b' : '#f4f4f5',
+                color: currentIndex === 3 ? '#52525b' : '#f4f4f5',
                 fontWeight: 700,
                 fontSize: '0.85rem',
-                cursor: currentIndex === 5 ? 'not-allowed' : 'pointer',
+                cursor: currentIndex === 3 ? 'not-allowed' : 'pointer',
               }}
             >
               <span>Next Objective</span>

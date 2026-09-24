@@ -48,6 +48,14 @@ export function Car() {
       // Don't capture inputs if user is typing in any input field
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+      const st = getPortfolioState();
+      // If viewing an objective board and pressing forward/space, smoothly advance & zoom out
+      if (st.activeObjectiveIndex && (e.code === 'KeyW' || e.code === 'ArrowUp' || e.code === 'Space')) {
+        const nextIdx = st.activeObjectiveIndex < 3 ? st.activeObjectiveIndex + 1 : 4;
+        portfolioActions.advanceToNextObjective(nextIdx);
+        return;
+      }
+
       switch (e.code) {
         case 'KeyW':
         case 'ArrowUp':
@@ -153,10 +161,19 @@ export function Car() {
     }
 
     const currentPos = rigidBodyRef.current.translation();
-    const proxy = {
+    const currentRot = rigidBodyRef.current.rotation();
+    const startQuat = new THREE.Quaternion(
+      currentRot.x,
+      currentRot.y,
+      currentRot.z,
+      currentRot.w
+    );
+
+    const animProxy = {
       x: currentPos.x,
       y: currentPos.y + 0.5,
       z: currentPos.z,
+      progress: 0,
     };
 
     // Kill existing momentum
@@ -167,17 +184,25 @@ export function Car() {
     const targetHeading = target.heading !== undefined ? target.heading : Math.atan2(-target.x, -target.z);
     const targetQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), targetHeading);
 
-    // Smoothly animate car translation using GSAP
-    gsap.to(proxy, {
+    // Smoothly animate car translation and continuous rotation slerp using GSAP
+    gsap.to(animProxy, {
       x: target.x,
       y: target.y || 0.8,
       z: target.z,
-      duration: 1.4,
-      ease: 'power3.inOut',
+      progress: 1,
+      duration: 1.3,
+      ease: 'power2.inOut',
       onUpdate: () => {
         if (rigidBodyRef.current) {
-          rigidBodyRef.current.setTranslation({ x: proxy.x, y: proxy.y, z: proxy.z }, true);
+          rigidBodyRef.current.setTranslation(
+            { x: animProxy.x, y: animProxy.y, z: animProxy.z },
+            true
+          );
+          // Continuous smooth rotation slerp: car turns fluidly towards the destination
+          const curQuat = startQuat.clone().slerp(targetQuat, animProxy.progress);
+          rigidBodyRef.current.setRotation(curQuat, true);
           rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+          rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
         }
       },
       onComplete: () => {
@@ -196,6 +221,14 @@ export function Car() {
   // Per-frame physics update & wheel animation
   useFrame((_, delta) => {
     if (!rigidBodyRef.current || isTeleportingAnim.current) return;
+
+    const { activeObjectiveIndex } = getPortfolioState();
+    // When viewing an objective board, park car solidly in place
+    if (activeObjectiveIndex) {
+      rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+      rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+      return;
+    }
 
     const rb = rigidBodyRef.current;
     const translation = rb.translation();

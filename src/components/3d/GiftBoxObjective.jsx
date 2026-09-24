@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Text, Float } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import * as THREE from 'three';
 import { getPortfolioState, portfolioActions, usePortfolioStore } from '../../store/usePortfolioStore';
 import { sounds } from '../../audio/soundEffects';
@@ -11,7 +12,9 @@ export function GiftBoxObjective({
   rotation = [0, 0, 0],
   title = '',
   sentence = '',
+  sentence2 = '',
   businessValue = 9,
+  status = 'COMMITTED',
   wrapColor = '#0284c7',
   ribbonColor = '#fbbf24',
 }) {
@@ -26,6 +29,7 @@ export function GiftBoxObjective({
   const beaconRef = useRef(null);
   const isTriggeredRef = useRef(false);
   const [btnHovered, setBtnHovered] = useState(false);
+  const [backBtnHovered, setBackBtnHovered] = useState(false);
 
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
   const activeObjectiveIndex = usePortfolioStore((s) => s.activeObjectiveIndex);
@@ -33,7 +37,26 @@ export function GiftBoxObjective({
   const isTarget = targetCheckpointIndex === index;
   const isOpen = activeObjectiveIndex === index;
 
-  // Frame update: Proximity detection with strict latch ref + 60fps opening animation
+  // Reset trigger latch whenever box is closed so player can hit it again if returning
+  useEffect(() => {
+    if (!isOpen) {
+      isTriggeredRef.current = false;
+    }
+  }, [isOpen]);
+
+  const handleHit = () => {
+    if (isTriggeredRef.current || isOpen) return;
+    isTriggeredRef.current = true;
+    if (getPortfolioState().audioEnabled) {
+      sounds.celebration();
+    }
+    // Asynchronously update store outside R3F render traversal
+    setTimeout(() => {
+      portfolioActions.openObjectiveBlock(index);
+    }, 0);
+  };
+
+  // Frame update: Proximity detection backup + 60fps opening animation
   useFrame((_, delta) => {
     const { carPosition } = getPortfolioState();
 
@@ -43,15 +66,8 @@ export function GiftBoxObjective({
       const distSq = dx * dx + dz * dz;
 
       // Hit threshold (~4.8m radius) - triggers ONCE when car enters
-      if (distSq < 24 && !isTriggeredRef.current && isTarget && !isOpen) {
-        isTriggeredRef.current = true;
-        if (getPortfolioState().audioEnabled) {
-          sounds.celebration();
-        }
-        // Asynchronously update store outside R3F render traversal
-        setTimeout(() => {
-          portfolioActions.openObjectiveBlock(index);
-        }, 0);
+      if (distSq < 26 && !isTriggeredRef.current && isTarget && !isOpen) {
+        handleHit();
       } else if (distSq > 34) {
         isTriggeredRef.current = false;
       }
@@ -113,16 +129,32 @@ export function GiftBoxObjective({
 
   const handleNextClick = (e) => {
     e.stopPropagation();
-    const nextIdx = index < 5 ? index + 1 : 6;
+    const nextIdx = index < 3 ? index + 1 : 4;
     portfolioActions.advanceToNextObjective(nextIdx);
   };
 
   return (
-    <group position={position} rotation={rotation}>
-      {/* ========================================================
-          1. SKYWARD BEACON & TARGET GROUND HALO (When active target)
-         ======================================================== */}
-      {isTarget && !isOpen && (
+    <>
+      {/* Physical Collider when unopened: Solid barrier so the car physically HITS the gift box! */}
+      {!isOpen && (
+        <RigidBody
+          type="fixed"
+          colliders={false}
+          position={position}
+          rotation={rotation}
+          onCollisionEnter={() => {
+            handleHit();
+          }}
+        >
+          <CuboidCollider args={[2.4, 1.5, 1.8]} position={[0, 1.5, 0]} />
+        </RigidBody>
+      )}
+
+      <group position={position} rotation={rotation}>
+        {/* ========================================================
+            1. SKYWARD BEACON & TARGET GROUND HALO (When active target)
+           ======================================================== */}
+        {isTarget && !isOpen && (
         <group ref={beaconRef} position={[0, 11, 0]}>
           <mesh>
             <cylinderGeometry args={[0.35, 1.1, 22, 16]} />
@@ -377,7 +409,7 @@ export function GiftBoxObjective({
           letterSpacing={0.04}
           maxWidth={7.6}
         >
-          {`PI OBJECTIVE ${index} OF 5 • TEAM ABU Q4 2026`}
+          {`PI OBJECTIVE ${index} OF 3 • TEAM ABU Q4 2026`}
         </Text>
 
         {/* Main Bold Title (Cleanly fit with maxWidth 7.6) */}
@@ -401,23 +433,57 @@ export function GiftBoxObjective({
           <meshBasicMaterial color={ribbonColor} />
         </mesh>
 
-        {/* One-Sentence Objective Description - Flows downward from +0.60 to avoid any collision */}
-        <Text
-          position={[0, 0.60, 0.18]}
-          fontSize={0.21}
-          color="#f1f5f9"
-          fontWeight={600}
-          anchorX="center"
-          anchorY="top"
-          maxWidth={7.4}
-          textAlign="center"
-          lineHeight={1.40}
-        >
-          {sentence}
-        </Text>
+        {/* Objective Description - Dual-sentence or Single-sentence cleanly spaced */}
+        {sentence2 ? (
+          <group position={[0, 0.62, 0.18]}>
+            {/* Sentence 1 */}
+            <Text
+              position={[0, 0, 0]}
+              fontSize={0.175}
+              color="#f8fafc"
+              fontWeight={600}
+              anchorX="center"
+              anchorY="top"
+              maxWidth={7.4}
+              textAlign="center"
+              lineHeight={1.35}
+            >
+              {sentence}
+            </Text>
+
+            {/* Sentence 2 */}
+            <Text
+              position={[0, -0.46, 0]}
+              fontSize={0.175}
+              color="#38bdf8"
+              fontWeight={600}
+              anchorX="center"
+              anchorY="top"
+              maxWidth={7.4}
+              textAlign="center"
+              lineHeight={1.35}
+            >
+              {sentence2}
+            </Text>
+          </group>
+        ) : (
+          <Text
+            position={[0, 0.50, 0.18]}
+            fontSize={0.21}
+            color="#f8fafc"
+            fontWeight={600}
+            anchorX="center"
+            anchorY="top"
+            maxWidth={7.4}
+            textAlign="center"
+            lineHeight={1.40}
+          >
+            {sentence}
+          </Text>
+        )}
 
         {/* Business Value Section - Cleanly Centered Horizontally around X = 0 */}
-        <group position={[0, -0.55, 0.18]}>
+        <group position={[0, -0.38, 0.18]}>
           {/* Label positioned to the left of center */}
           <Text
             position={[-0.3, 0, 0]}
@@ -454,40 +520,193 @@ export function GiftBoxObjective({
           </group>
         </group>
 
-        {/* Layer 6: Interactive In-Land Drive Button (Offset at Z = 0.22) */}
-        <group
-          position={[0, -1.65, 0.22]}
-          onClick={handleNextClick}
-          onPointerOver={() => setBtnHovered(true)}
-          onPointerOut={() => setBtnHovered(false)}
-        >
-          <mesh>
-            <boxGeometry args={[5.6, 0.68, 0.06]} />
+        {/* Layer 5.5: Small Green Card: Agile Commitment Status (e.g. COMMITTED) */}
+        <group position={[0, -0.92, 0.20]}>
+          {/* Card Outer Subtle Ambient Glow */}
+          <mesh position={[0, 0, -0.015]}>
+            <planeGeometry args={[2.52, 0.48]} />
+            <meshBasicMaterial color="#10b981" transparent opacity={0.35} depthWrite={false} />
+          </mesh>
+
+          {/* Card Emerald/Mint Border Frame */}
+          <mesh position={[0, 0, -0.01]}>
+            <planeGeometry args={[2.44, 0.42]} />
+            <meshBasicMaterial color="#10b981" />
+          </mesh>
+
+          {/* Card Main Dark Emerald Body */}
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[2.36, 0.36]} />
             <meshStandardMaterial
-              color={btnHovered ? '#0284c7' : '#0369a1'}
-              metalness={0.6}
+              color="#064e3b"
+              emissive="#047857"
+              emissiveIntensity={0.45}
               roughness={0.25}
+              metalness={0.3}
             />
           </mesh>
-          <mesh position={[0, 0, -0.02]}>
-            <boxGeometry args={[5.68, 0.76, 0.04]} />
-            <meshBasicMaterial color={btnHovered ? '#ffffff' : ribbonColor} />
+
+          {/* Glowing Green Status Orb / Indicator */}
+          <mesh position={[-0.64, 0, 0.02]}>
+            <circleGeometry args={[0.065, 16]} />
+            <meshBasicMaterial color="#34d399" />
           </mesh>
+
+          {/* Outer Status Ring */}
+          <mesh position={[-0.64, 0, 0.018]}>
+            <ringGeometry args={[0.075, 0.095, 16]} />
+            <meshBasicMaterial color="#6ee7b7" transparent opacity={0.6} />
+          </mesh>
+
+          {/* Bold White/Mint Status Text */}
           <Text
-            position={[0, 0, 0.06]}
-            fontSize={0.24}
-            color="#ffffff"
+            position={[-0.48, 0, 0.03]}
+            fontSize={0.18}
+            color="#ecfdf5"
             fontWeight={900}
-            anchorX="center"
+            anchorX="left"
             anchorY="middle"
-            letterSpacing={0.04}
+            letterSpacing={0.06}
           >
-            {index < 5
-              ? `DRIVE TO OBJECTIVE ${index + 1} ➔ 🏎️`
-              : '🏆 ALL OBJECTIVES UNLOCKED! DRIVE TO TEAM LAND ➔'}
+            {status || 'COMMITTED'}
           </Text>
         </group>
+
+        {/* Layer 6: Interactive In-Land Navigation Buttons (Offset at Z = 0.22) */}
+        {index > 1 ? (
+          <group position={[0, -1.78, 0.22]}>
+            {/* Compact Back Button */}
+            <group
+              position={[-2.7, 0, 0]}
+              onClick={(e) => {
+                e.stopPropagation();
+                portfolioActions.goToPreviousObjective(index - 1);
+              }}
+              onPointerOver={() => setBackBtnHovered(true)}
+              onPointerOut={() => setBackBtnHovered(false)}
+            >
+              <mesh>
+                <boxGeometry args={[2.2, 0.82, 0.06]} />
+                <meshStandardMaterial
+                  color={backBtnHovered ? '#475569' : '#334155'}
+                  metalness={0.5}
+                  roughness={0.4}
+                />
+              </mesh>
+              <mesh position={[0, 0, -0.02]}>
+                <boxGeometry args={[2.28, 0.90, 0.04]} />
+                <meshBasicMaterial color={backBtnHovered ? '#ffffff' : '#94a3b8'} />
+              </mesh>
+              <Text
+                position={[0, 0, 0.06]}
+                fontSize={0.21}
+                color="#ffffff"
+                fontWeight={900}
+                anchorX="center"
+                anchorY="middle"
+                letterSpacing={0.03}
+              >
+                {`⬅️ PREV (${index - 1})`}
+              </Text>
+            </group>
+
+            {/* Next / Completion Button */}
+            <group
+              position={[1.35, 0, 0]}
+              onClick={handleNextClick}
+              onPointerOver={() => setBtnHovered(true)}
+              onPointerOut={() => setBtnHovered(false)}
+            >
+              <mesh>
+                <boxGeometry args={[5.5, 0.82, 0.06]} />
+                <meshStandardMaterial
+                  color={btnHovered ? '#0284c7' : '#0369a1'}
+                  metalness={0.6}
+                  roughness={0.25}
+                />
+              </mesh>
+              <mesh position={[0, 0, -0.02]}>
+                <boxGeometry args={[5.58, 0.90, 0.04]} />
+                <meshBasicMaterial color={btnHovered ? '#ffffff' : ribbonColor} />
+              </mesh>
+              {index === 3 ? (
+                <group>
+                  <Text
+                    position={[0, 0.16, 0.06]}
+                    fontSize={0.20}
+                    color="#fbbf24"
+                    fontWeight={900}
+                    anchorX="center"
+                    anchorY="middle"
+                    letterSpacing={0.04}
+                    maxWidth={5.2}
+                  >
+                    🏆 ALL OBJECTIVES UNLOCKED! 🏆
+                  </Text>
+                  <Text
+                    position={[0, -0.16, 0.06]}
+                    fontSize={0.19}
+                    color="#ffffff"
+                    fontWeight={900}
+                    anchorX="center"
+                    anchorY="middle"
+                    letterSpacing={0.03}
+                    maxWidth={5.2}
+                  >
+                    DRIVE TO TEAM LAND ➔ 🏎️
+                  </Text>
+                </group>
+              ) : (
+                <Text
+                  position={[0, 0, 0.06]}
+                  fontSize={0.23}
+                  color="#ffffff"
+                  fontWeight={900}
+                  anchorX="center"
+                  anchorY="middle"
+                  letterSpacing={0.04}
+                  maxWidth={5.2}
+                >
+                  {`DRIVE TO OBJECTIVE ${index + 1} ➔ 🏎️`}
+                </Text>
+              )}
+            </group>
+          </group>
+        ) : (
+          <group
+            position={[0, -1.78, 0.22]}
+            onClick={handleNextClick}
+            onPointerOver={() => setBtnHovered(true)}
+            onPointerOut={() => setBtnHovered(false)}
+          >
+            <mesh>
+              <boxGeometry args={[5.6, 0.82, 0.06]} />
+              <meshStandardMaterial
+                color={btnHovered ? '#0284c7' : '#0369a1'}
+                metalness={0.6}
+                roughness={0.25}
+              />
+            </mesh>
+            <mesh position={[0, 0, -0.02]}>
+              <boxGeometry args={[5.68, 0.90, 0.04]} />
+              <meshBasicMaterial color={btnHovered ? '#ffffff' : ribbonColor} />
+            </mesh>
+            <Text
+              position={[0, 0, 0.06]}
+              fontSize={0.24}
+              color="#ffffff"
+              fontWeight={900}
+              anchorX="center"
+              anchorY="middle"
+              letterSpacing={0.04}
+              maxWidth={5.3}
+            >
+              DRIVE TO OBJECTIVE 2 ➔ 🏎️
+            </Text>
+          </group>
+        )}
       </group>
     </group>
+  </>
   );
 }

@@ -50,44 +50,23 @@ const STAGE_ROUTES = {
     ],
   },
 
-  // STAGE 4: CP3 [-30, -14] -> CP4 [-12, -30] (Curving North-East / Left Turn)
+  // STAGE 4: Objectives 1-3 Complete -> Drive from Objective 3 [-30, -14] along Cross Boulevard East directly into Team Photo [32, 0, -30]!
   4: {
-    color: '#00ffff',
-    glowColor: '#0284c7',
-    chevrons: [
-      { pos: [-27.5, 0.22, -16.5], angle: -0.20 * Math.PI, scale: 1.4 },
-      { pos: [-24.0, 0.22, -19.5], angle: -0.24 * Math.PI, scale: 1.4 },
-      { pos: [-20.0, 0.22, -23.0], angle: -0.26 * Math.PI, scale: 1.45 },
-      { pos: [-16.5, 0.22, -26.5], angle: -0.28 * Math.PI, scale: 1.45 },
-      { pos: [-13.5, 0.22, -29.0], angle: -0.30 * Math.PI, scale: 1.5 },
-    ],
-  },
-
-  // STAGE 5: CP4 [-12, -30] -> CP5 [-30, -30] (Straight West into Center Finish Arch)
-  5: {
-    color: '#fbbf24', // Radiant Amber/Gold for the Grand Finale
-    glowColor: '#f59e0b',
-    chevrons: [
-      { pos: [-15.0, 0.22, -30.0], angle: Math.PI / 2, scale: 1.45 },
-      { pos: [-18.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.45 },
-      { pos: [-22.0, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
-      { pos: [-25.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
-      { pos: [-28.5, 0.22, -30.0], angle: Math.PI / 2, scale: 1.5 },
-    ],
-  },
-
-  // STAGE 6: Objectives Complete -> Cross Boulevard East directly into Our Team Land [32, 0, -30] (Side by Side!)
-  6: {
-    color: '#f97316', // Vibrant Orange for Team Plaza
+    color: '#f97316', // Vibrant Orange/Gold for Team Photo
     glowColor: '#ea580c',
     chevrons: [
-      { pos: [-20.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.4 },
-      { pos: [-12.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.4 },
-      { pos: [-4.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
-      { pos: [4.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
-      { pos: [12.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
-      { pos: [20.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.5 },
-      { pos: [27.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.5 },
+      { pos: [-27.5, 0.22, -16.5], angle: -0.22 * Math.PI, scale: 1.4 },
+      { pos: [-24.0, 0.22, -20.5], angle: -0.26 * Math.PI, scale: 1.4 },
+      { pos: [-19.5, 0.22, -25.0], angle: -0.32 * Math.PI, scale: 1.45 },
+      { pos: [-14.5, 0.22, -28.5], angle: -0.40 * Math.PI, scale: 1.45 },
+      { pos: [-8.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [0.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [8.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [16.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.45 },
+      { pos: [24.0, 0.22, -30.0], angle: -Math.PI / 2, scale: 1.5 },
+      { pos: [30.0, 0.22, -28.0], angle: -0.75 * Math.PI, scale: 1.5 },
+      { pos: [32.0, 0.22, -24.0], angle: 0, scale: 1.5 },
+      { pos: [32.0, 0.22, -21.0], angle: 0, scale: 1.55 },
     ],
   },
 };
@@ -96,8 +75,8 @@ export function CircuitNeonDirections() {
   const targetCheckpointIndex = usePortfolioStore((s) => s.targetCheckpointIndex);
   const objectivesCompleted = usePortfolioStore((s) => s.objectivesCompleted);
 
-  // Active stage (1 to 5, or 6 for Completed -> Team Land)
-  const activeStage = objectivesCompleted || targetCheckpointIndex >= 6 ? 6 : targetCheckpointIndex;
+  // Active stage (1 to 3 for objectives, 4 for Completed -> Team Photo)
+  const activeStage = objectivesCompleted || targetCheckpointIndex >= 4 ? 4 : targetCheckpointIndex;
   const config = STAGE_ROUTES[activeStage] || STAGE_ROUTES[1];
 
   // Symmetric, clean aerodynamic racing chevron 2D shape

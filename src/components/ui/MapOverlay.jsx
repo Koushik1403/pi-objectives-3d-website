@@ -13,7 +13,7 @@ const DESTINATIONS = [
     heading: Math.PI, // Facing South straight towards Checkpoint 1!
     badgeColor: '#0284c7',
     badgeText: '01',
-    description: 'Explore the 5 PI Objectives across the interactive racing circuit.',
+    description: 'Explore the 3 PI Objectives across the interactive racing circuit.',
     isModal: false,
   },
   {
